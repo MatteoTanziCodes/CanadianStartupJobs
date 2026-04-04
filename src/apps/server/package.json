@@ -10,6 +10,7 @@
     "gen:tags": "bun run src/scripts/createTagFunctions.ts",
     "gen:piv:jobs": "bun run src/scripts/createJobPivotFunctions.ts",
     "gen:piv:orgs": "bun run src/scripts/createOrgPivotFunctions.ts",
+    "seed-organizations": "bun run src/scripts/seed-organizations.ts",
     "queue-source": "bun run src/scripts/queue-source.ts",
     "run-worker": "bun run src/scripts/runWorker.ts"
   },

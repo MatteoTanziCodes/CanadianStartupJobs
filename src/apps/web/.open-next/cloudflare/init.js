@@ -49,7 +49,7 @@ function initRuntime() {
   };
   Object.assign(globalThis, {
     Request: CustomRequest,
-    __BUILD_TIMESTAMP_MS__: 1775289401934,
+    __BUILD_TIMESTAMP_MS__: 1775290939422,
     __NEXT_BASE_PATH__: "/job-board",
     __ASSETS_RUN_WORKER_FIRST__: false,
     __TRAILING_SLASH__: false,

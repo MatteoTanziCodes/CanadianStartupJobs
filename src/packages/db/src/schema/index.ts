@@ -2,6 +2,7 @@
 // Add your table schemas here or import them from separate files
 import {
   organizations,
+  organizationSeeds,
   jobBoardCaches,
   orgsSizes,
   orgsStages,
@@ -41,6 +42,7 @@ import {
 
 export {
   organizations,
+  organizationSeeds,
   jobBoardCaches,
   orgsSizes,
   orgsStages,

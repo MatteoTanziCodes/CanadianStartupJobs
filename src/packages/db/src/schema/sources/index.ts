@@ -8,6 +8,7 @@ const sources = sqliteTable("sources", {
   description: text("description").notNull(),
   website: text("website"),
   portfolio: text("portfolio"),
+  kind: text("kind").notNull().default("vc_portfolio"),
   createdAt: timestampNowColumn("created_at"),
   updatedAt: timestampNowColumn("updated_at"),
 });

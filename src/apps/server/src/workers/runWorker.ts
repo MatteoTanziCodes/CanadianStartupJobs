@@ -36,9 +36,10 @@ const runWorker = async (config: WorkerConfig = {}) => {
   console.log("   The worker will process the queue with priority order:");
   console.log("   1. jobAgent (highest priority)");
   console.log("   2. jobBoardAgent");
-  console.log("   3. organizationAgent");
-  console.log("   4. portfolioLinksAgent");
-  console.log("   5. sourceAgent (lowest priority)");
+  console.log("   3. qualificationAgent");
+  console.log("   4. organizationAgent");
+  console.log("   5. portfolioLinksAgent");
+  console.log("   6. sourceAgent (lowest priority)");
   console.log("\n   Press Ctrl+C to stop the worker\n");
 
   startLlMCallWorker({

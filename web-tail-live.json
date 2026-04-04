@@ -1,0 +1,107 @@
+{
+    "wallTime": 5,
+    "cpuTime": 5,
+    "truncated": false,
+    "executionModel": "stateless",
+    "outcome": "ok",
+    "scriptVersion": {
+        "id": "004a16de-1432-48be-9c6f-39f4419647ab"
+    },
+    "scriptName": "canadianstartupjobs",
+    "diagnosticsChannelEvents": [],
+    "exceptions": [],
+    "logs": [
+        {
+            "message": [
+                "Γ¿»",
+                "TypeError: components.ComponentMod.handler is not a function"
+            ],
+            "level": "error",
+            "timestamp": 1775290566936
+        }
+    ],
+    "eventTimestamp": 1775290566935,
+    "event": {
+        "request": {
+            "url": "https://canadianstartupjobs.matteo-beatstanzi.workers.dev/job-board",
+            "method": "HEAD",
+            "headers": {
+                "accept": "*/*",
+                "accept-encoding": "gzip, br",
+                "cf-connecting-ip": "198.98.118.218",
+                "cf-ipcountry": "CA",
+                "cf-ray": "9e6ede7b4852592d",
+                "cf-visitor": "{\"scheme\":\"https\"}",
+                "connection": "Keep-Alive",
+                "host": "canadianstartupjobs.matteo-beatstanzi.workers.dev",
+                "user-agent": "curl/8.18.0",
+                "x-forwarded-proto": "https",
+                "x-real-ip": "198.98.118.218"
+            },
+            "cf": {
+                "httpProtocol": "HTTP/1.1",
+                "requestPriority": "",
+                "edgeRequestKeepAliveStatus": 1,
+                "requestHeaderNames": {},
+                "clientTcpRtt": 4,
+                "clientQuicRtt": 0,
+                "colo": "YYZ",
+                "asn": 21949,
+                "asOrganization": "Beanfield",
+                "country": "CA",
+                "isEUCountry": false,
+                "city": "Toronto",
+                "continent": "NA",
+                "region": "Ontario",
+                "regionCode": "ON",
+                "timezone": "America/Toronto",
+                "longitude": "-79.39864",
+                "latitude": "43.70643",
+                "postalCode": "M5A",
+                "tlsVersion": "TLSv1.3",
+                "tlsCipher": "AEAD-AES256-GCM-SHA384",
+                "tlsClientRandom": "JP30etVVC5DZBTFIcl1yYe9Hcg4HVZyzMmn8HWy186c=",
+                "tlsClientCiphersSha1": "kTkJ+HAwBvIuoPFncb1wEDLcgfg=",
+                "tlsClientExtensionsSha1": "p2XN7z/lcnmBD9Q+f8xSyG4x4VA=",
+                "tlsClientExtensionsSha1Le": "ydwLHTahJx17MvHnnvv2lsdgs/g=",
+                "tlsExportedAuthenticator": {
+                    "clientHandshake": "308521cb237a7c3ae73cf5f3f9ab7ba511b5c34c0d03dd969fda312b575c845dab6bdc650175997c1386c60e87c535f0",
+                    "serverHandshake": "d60e4f787b52fb16bc242aee04c79c190d4ee3b09a70fa73612e1c10dbd915ed89bdb6138b4d24cc4b9538acba9d75b2",
+                    "clientFinished": "33139519b8d677ae378679cda21deb958421c33463c587e0180df7076cdcb74e219607b5729e40dea18f82c7a150a9cf",
+                    "serverFinished": "a2a8fbc8c72124bb69ad27089f80d0c25ddc5e1c38dec8b3335a4e3ccce1eb94308ac06c83dc46ea24acc66e7d88dc91"
+                },
+                "tlsClientHelloLength": "487",
+                "tlsClientAuth": {
+                    "certPresented": "0",
+                    "certVerified": "NONE",
+                    "certRevoked": "0",
+                    "certIssuerDN": "",
+                    "certSubjectDN": "",
+                    "certIssuerDNRFC2253": "",
+                    "certSubjectDNRFC2253": "",
+                    "certIssuerDNLegacy": "",
+                    "certSubjectDNLegacy": "",
+                    "certSerial": "",
+                    "certIssuerSerial": "",
+                    "certSKI": "",
+                    "certIssuerSKI": "",
+                    "certFingerprintSHA1": "",
+                    "certFingerprintSHA256": "",
+                    "certNotBefore": "",
+                    "certNotAfter": "",
+                    "certRFC9440": "",
+                    "certRFC9440TooLarge": false,
+                    "certChainRFC9440": "",
+                    "certChainRFC9440TooLarge": false
+                },
+                "verifiedBotCategory": "",
+                "edgeL4": {
+                    "deliveryRate": 684963
+                }
+            }
+        },
+        "response": {
+            "status": 500
+        }
+    }
+}

@@ -1,17 +1,35 @@
 import { eq, asc, sql } from "drizzle-orm";
-import { db, queues, schemas } from "@/lib/db/runtime";
+import { db, queues, schemas, sources } from "@/lib/db/runtime";
 import { z } from "zod";
 import { AppError, ERROR_CODES } from "@/lib/errors";
 
+const DISCOVERY_SOURCE_THRESHOLD = 20;
+
 const getNextQueuedItem = async () => {
-  const response = await db.select().from(queues).where(eq(queues.status, "queued")).orderBy(sql`CASE
-    WHEN ${queues.agent} = 'jobAgent' THEN 1
-    WHEN ${queues.agent} = 'jobBoardAgent' THEN 2
-    WHEN ${queues.agent} = 'organizationAgent' THEN 3
-    WHEN ${queues.agent} = 'portfolioLinksAgent' THEN 4
-    WHEN ${queues.agent} = 'sourceAgent' THEN 5
-  END`,
-  asc(queues.createdAt)).limit(1);
+  const sourceCount = await db.$count(sources);
+  const discoveryFirst = sourceCount < DISCOVERY_SOURCE_THRESHOLD;
+  const prioritySql = discoveryFirst
+    ? sql`CASE
+        WHEN ${queues.agent} = 'sourceAgent' THEN 1
+        WHEN ${queues.agent} = 'portfolioLinksAgent' THEN 2
+        WHEN ${queues.agent} = 'organizationAgent' THEN 3
+        WHEN ${queues.agent} = 'qualificationAgent' THEN 4
+        WHEN ${queues.agent} = 'jobBoardAgent' THEN 5
+        WHEN ${queues.agent} = 'jobAgent' THEN 6
+      END`
+    : sql`CASE
+        WHEN ${queues.agent} = 'jobAgent' THEN 1
+        WHEN ${queues.agent} = 'jobBoardAgent' THEN 2
+        WHEN ${queues.agent} = 'qualificationAgent' THEN 3
+        WHEN ${queues.agent} = 'organizationAgent' THEN 4
+        WHEN ${queues.agent} = 'portfolioLinksAgent' THEN 5
+        WHEN ${queues.agent} = 'sourceAgent' THEN 6
+      END`;
+
+  const response = await db.select().from(queues).where(eq(queues.status, "queued")).orderBy(
+    prioritySql,
+    asc(queues.createdAt),
+  ).limit(1);
   if (!response[0]) throw new AppError(ERROR_CODES.DB_QUERY_FAILED, "No remaining tasks");
   return response[0];
 };
@@ -21,22 +39,25 @@ const jsonbSchema = z.union([z.array(z.any()), z.any()]);
 const addToQueueSchema = z.object({
   payload: jsonbSchema,
   agent: z.string(),
+  maxRetries: z.number().int().positive().optional(),
 });
 
 type AddToQueueArgs = z.infer<typeof addToQueueSchema>;
 
 const addToQueue = async (args: AddToQueueArgs) => {
-  const { payload, agent } = args;
+  const { payload, agent, maxRetries } = args;
   const uploadValues = {
     payload,
     agent,
     status: "queued",
-    retryCount: 0
+    retryCount: 0,
+    ...(maxRetries ? { maxRetries } : {}),
   };
   const response = await db.insert(queues).values(uploadValues).returning();
   if (!response[0]) throw new AppError(ERROR_CODES.DB_INSERT_FAILED, "Couldn't queue task", {
     payload,
-    agent
+    agent,
+    maxRetries,
   });
   return response[0];
 }
@@ -64,9 +85,36 @@ const updateStatus = async (args: UpdateQueuedItemStatusArgs) => {
   return response[0];
 };
 
+const resetFailedQueuedItems = async (args: {
+  agents?: string[];
+} = {}) => {
+  const failedItems = await db.select().from(queues).where(eq(queues.status, "failed"));
+  const matchingItems = args.agents?.length
+    ? failedItems.filter((item) => args.agents?.includes(item.agent))
+    : failedItems;
+
+  if (matchingItems.length === 0) {
+    return [];
+  }
+
+  const resetItems = [];
+  for (const item of matchingItems) {
+    const [updated] = await db.update(queues)
+      .set({ status: "queued", retryCount: 0 })
+      .where(eq(queues.id, item.id))
+      .returning();
+
+    if (updated) {
+      resetItems.push(updated);
+    }
+  }
+
+  return resetItems;
+};
+
 export type GetNextQueuedItem = Awaited<ReturnType<typeof getNextQueuedItem>>;
 export type QueuedItem = GetNextQueuedItem;
 
 export const queuedItemSchema = schemas.queues.select;
 
-export { getNextQueuedItem, addToQueue, updateStatus };
+export { getNextQueuedItem, addToQueue, updateStatus, resetFailedQueuedItems };

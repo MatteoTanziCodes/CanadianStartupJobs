@@ -1,8 +1,9 @@
-import { eq, asc, desc, inArray } from "drizzle-orm";
+import { and, eq, asc, desc, inArray } from "drizzle-orm";
 import {
   type Database,
   jobs,
   organizations,
+  orgsJobs,
   provinces,
   jobTypes,
   experienceLevels,
@@ -99,20 +100,54 @@ const getJobById = async (db: Database, id: number): Promise<JobsSelect> => {
   return result[0];
 };
 
+const getVisibleJobIds = async (db: Database) => {
+  const visibleRows = await db
+    .select({ jobId: jobs.id })
+    .from(jobs)
+    .innerJoin(orgsJobs, eq(orgsJobs.jobId, jobs.id))
+    .innerJoin(organizations, eq(organizations.id, orgsJobs.orgId))
+    .where(
+      and(
+        eq(jobs.listingStatus, "active"),
+        eq(jobs.reviewStatus, "approved"),
+        eq(organizations.qualificationStatus, "qualified"),
+      ),
+    );
+
+  return [...new Set(visibleRows.map((row) => row.jobId))];
+};
+
+const intersectWithPivot = async (
+  currentIds: Set<number>,
+  pivotIds: number[],
+) => {
+  const pivotIdSet = new Set(pivotIds);
+  for (const id of Array.from(currentIds)) {
+    if (!pivotIdSet.has(id)) {
+      currentIds.delete(id);
+    }
+  }
+};
+
 const countJobs = async (db: Database, filters?: FilterOptions) => {
-  const hasActiveFilters = filters && Object.values(filters).some((value) => value !== undefined);
-  if (!hasActiveFilters) {
-    return db.$count(jobs);
+  const visibleJobIds = await getVisibleJobIds(db);
+  if (visibleJobIds.length === 0) {
+    return 0;
   }
 
-  const filteredJobIds = new Set<number>();
+  const hasActiveFilters = filters && Object.values(filters).some((value) => value !== undefined);
+  if (!hasActiveFilters) {
+    return visibleJobIds.length;
+  }
+
+  const filteredJobIds = new Set<number>(visibleJobIds);
 
   if (filters.provinceId) {
     const pivot = await db
       .select({ jobId: jobsProvinces.jobId })
       .from(jobsProvinces)
       .where(eq(jobsProvinces.provinceId, filters.provinceId));
-    pivot.forEach((item) => filteredJobIds.add(item.jobId));
+    await intersectWithPivot(filteredJobIds, pivot.map((item) => item.jobId));
   }
 
   if (filters.jobTypeId) {
@@ -120,17 +155,7 @@ const countJobs = async (db: Database, filters?: FilterOptions) => {
       .select({ jobId: jobsJobTypes.jobId })
       .from(jobsJobTypes)
       .where(eq(jobsJobTypes.jobTypeId, filters.jobTypeId));
-    const pivotIds = new Set(pivot.map((item) => item.jobId));
-    if (filteredJobIds.size > 0) {
-      const intersection = new Set<number>();
-      filteredJobIds.forEach((id) => {
-        if (pivotIds.has(id)) intersection.add(id);
-      });
-      filteredJobIds.clear();
-      intersection.forEach((id) => filteredJobIds.add(id));
-    } else {
-      pivotIds.forEach((id) => filteredJobIds.add(id));
-    }
+    await intersectWithPivot(filteredJobIds, pivot.map((item) => item.jobId));
   }
 
   if (filters.experienceLevelId) {
@@ -138,17 +163,7 @@ const countJobs = async (db: Database, filters?: FilterOptions) => {
       .select({ jobId: jobsExperienceLevels.jobId })
       .from(jobsExperienceLevels)
       .where(eq(jobsExperienceLevels.experienceLevelId, filters.experienceLevelId));
-    const pivotIds = new Set(pivot.map((item) => item.jobId));
-    if (filteredJobIds.size > 0) {
-      const intersection = new Set<number>();
-      filteredJobIds.forEach((id) => {
-        if (pivotIds.has(id)) intersection.add(id);
-      });
-      filteredJobIds.clear();
-      intersection.forEach((id) => filteredJobIds.add(id));
-    } else {
-      pivotIds.forEach((id) => filteredJobIds.add(id));
-    }
+    await intersectWithPivot(filteredJobIds, pivot.map((item) => item.jobId));
   }
 
   if (filters.industryId) {
@@ -156,17 +171,7 @@ const countJobs = async (db: Database, filters?: FilterOptions) => {
       .select({ jobId: jobsIndustries.jobId })
       .from(jobsIndustries)
       .where(eq(jobsIndustries.industryId, filters.industryId));
-    const pivotIds = new Set(pivot.map((item) => item.jobId));
-    if (filteredJobIds.size > 0) {
-      const intersection = new Set<number>();
-      filteredJobIds.forEach((id) => {
-        if (pivotIds.has(id)) intersection.add(id);
-      });
-      filteredJobIds.clear();
-      intersection.forEach((id) => filteredJobIds.add(id));
-    } else {
-      pivotIds.forEach((id) => filteredJobIds.add(id));
-    }
+    await intersectWithPivot(filteredJobIds, pivot.map((item) => item.jobId));
   }
 
   if (filters.roleId) {
@@ -174,17 +179,7 @@ const countJobs = async (db: Database, filters?: FilterOptions) => {
       .select({ jobId: jobsRoles.jobId })
       .from(jobsRoles)
       .where(eq(jobsRoles.roleId, filters.roleId));
-    const pivotIds = new Set(pivot.map((item) => item.jobId));
-    if (filteredJobIds.size > 0) {
-      const intersection = new Set<number>();
-      filteredJobIds.forEach((id) => {
-        if (pivotIds.has(id)) intersection.add(id);
-      });
-      filteredJobIds.clear();
-      intersection.forEach((id) => filteredJobIds.add(id));
-    } else {
-      pivotIds.forEach((id) => filteredJobIds.add(id));
-    }
+    await intersectWithPivot(filteredJobIds, pivot.map((item) => item.jobId));
   }
 
   return filteredJobIds.size;
@@ -196,19 +191,30 @@ const listJobs = async (
   take: number = 10,
   filters?: FilterOptions,
 ): Promise<JobsSelect[]> => {
-  const hasActiveFilters = filters && Object.values(filters).some((value) => value !== undefined);
-  if (!hasActiveFilters) {
-    return db.select().from(jobs).orderBy(orderStatement("desc")).limit(take).offset(skip);
+  const visibleJobIds = await getVisibleJobIds(db);
+  if (visibleJobIds.length === 0) {
+    return [];
   }
 
-  const jobIdsToFilter = new Set<number>();
+  const hasActiveFilters = filters && Object.values(filters).some((value) => value !== undefined);
+  if (!hasActiveFilters) {
+    return db
+      .select()
+      .from(jobs)
+      .where(inArray(jobs.id, visibleJobIds))
+      .orderBy(orderStatement("desc"))
+      .limit(take)
+      .offset(skip);
+  }
+
+  const jobIdsToFilter = new Set<number>(visibleJobIds);
 
   if (filters.provinceId) {
     const pivot = await db
       .select({ jobId: jobsProvinces.jobId })
       .from(jobsProvinces)
       .where(eq(jobsProvinces.provinceId, filters.provinceId));
-    pivot.forEach((item) => jobIdsToFilter.add(item.jobId));
+    await intersectWithPivot(jobIdsToFilter, pivot.map((item) => item.jobId));
   }
 
   if (filters.jobTypeId) {
@@ -216,17 +222,7 @@ const listJobs = async (
       .select({ jobId: jobsJobTypes.jobId })
       .from(jobsJobTypes)
       .where(eq(jobsJobTypes.jobTypeId, filters.jobTypeId));
-    const pivotIds = new Set(pivot.map((item) => item.jobId));
-    if (jobIdsToFilter.size > 0) {
-      const intersection = new Set<number>();
-      jobIdsToFilter.forEach((id) => {
-        if (pivotIds.has(id)) intersection.add(id);
-      });
-      jobIdsToFilter.clear();
-      intersection.forEach((id) => jobIdsToFilter.add(id));
-    } else {
-      pivotIds.forEach((id) => jobIdsToFilter.add(id));
-    }
+    await intersectWithPivot(jobIdsToFilter, pivot.map((item) => item.jobId));
   }
 
   if (filters.experienceLevelId) {
@@ -234,17 +230,7 @@ const listJobs = async (
       .select({ jobId: jobsExperienceLevels.jobId })
       .from(jobsExperienceLevels)
       .where(eq(jobsExperienceLevels.experienceLevelId, filters.experienceLevelId));
-    const pivotIds = new Set(pivot.map((item) => item.jobId));
-    if (jobIdsToFilter.size > 0) {
-      const intersection = new Set<number>();
-      jobIdsToFilter.forEach((id) => {
-        if (pivotIds.has(id)) intersection.add(id);
-      });
-      jobIdsToFilter.clear();
-      intersection.forEach((id) => jobIdsToFilter.add(id));
-    } else {
-      pivotIds.forEach((id) => jobIdsToFilter.add(id));
-    }
+    await intersectWithPivot(jobIdsToFilter, pivot.map((item) => item.jobId));
   }
 
   if (filters.industryId) {
@@ -252,17 +238,7 @@ const listJobs = async (
       .select({ jobId: jobsIndustries.jobId })
       .from(jobsIndustries)
       .where(eq(jobsIndustries.industryId, filters.industryId));
-    const pivotIds = new Set(pivot.map((item) => item.jobId));
-    if (jobIdsToFilter.size > 0) {
-      const intersection = new Set<number>();
-      jobIdsToFilter.forEach((id) => {
-        if (pivotIds.has(id)) intersection.add(id);
-      });
-      jobIdsToFilter.clear();
-      intersection.forEach((id) => jobIdsToFilter.add(id));
-    } else {
-      pivotIds.forEach((id) => jobIdsToFilter.add(id));
-    }
+    await intersectWithPivot(jobIdsToFilter, pivot.map((item) => item.jobId));
   }
 
   if (filters.roleId) {
@@ -270,17 +246,7 @@ const listJobs = async (
       .select({ jobId: jobsRoles.jobId })
       .from(jobsRoles)
       .where(eq(jobsRoles.roleId, filters.roleId));
-    const pivotIds = new Set(pivot.map((item) => item.jobId));
-    if (jobIdsToFilter.size > 0) {
-      const intersection = new Set<number>();
-      jobIdsToFilter.forEach((id) => {
-        if (pivotIds.has(id)) intersection.add(id);
-      });
-      jobIdsToFilter.clear();
-      intersection.forEach((id) => jobIdsToFilter.add(id));
-    } else {
-      pivotIds.forEach((id) => jobIdsToFilter.add(id));
-    }
+    await intersectWithPivot(jobIdsToFilter, pivot.map((item) => item.jobId));
   }
 
   if (jobIdsToFilter.size === 0) {

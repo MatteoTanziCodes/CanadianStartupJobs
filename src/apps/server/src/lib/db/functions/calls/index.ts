@@ -18,6 +18,54 @@ import { z } from "zod";
 import { AppError, ERROR_CODES } from "@/lib/errors";
 
 const jsonbSchema = z.union([z.array(z.any()), z.any()]);
+const MAX_STRING_LENGTH = 4_000;
+const MAX_ARRAY_ITEMS = 50;
+const MAX_OBJECT_KEYS = 40;
+
+const sanitizeForStorage = (value: unknown, depth = 0): unknown => {
+  if (value == null || typeof value === "number" || typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    if (value.length <= MAX_STRING_LENGTH) {
+      return value;
+    }
+
+    return `${value.slice(0, MAX_STRING_LENGTH)}… [truncated ${value.length - MAX_STRING_LENGTH} chars]`;
+  }
+
+  if (depth >= 4) {
+    return "[truncated nested value]";
+  }
+
+  if (Array.isArray(value)) {
+    const sanitizedItems = value
+      .slice(0, MAX_ARRAY_ITEMS)
+      .map((item) => sanitizeForStorage(item, depth + 1));
+
+    if (value.length > MAX_ARRAY_ITEMS) {
+      sanitizedItems.push(`[truncated ${value.length - MAX_ARRAY_ITEMS} items]`);
+    }
+
+    return sanitizedItems;
+  }
+
+  if (typeof value === "object") {
+    const entries = Object.entries(value as Record<string, unknown>);
+    const sanitizedEntries = entries
+      .slice(0, MAX_OBJECT_KEYS)
+      .map(([key, nestedValue]) => [key, sanitizeForStorage(nestedValue, depth + 1)] as const);
+
+    if (entries.length > MAX_OBJECT_KEYS) {
+      sanitizedEntries.push(["_truncatedKeys", entries.length - MAX_OBJECT_KEYS]);
+    }
+
+    return Object.fromEntries(sanitizedEntries);
+  }
+
+  return String(value);
+};
 
 const createCallSchema = z.object({
   queueId: z.number(),
@@ -32,9 +80,17 @@ const createCallSchema = z.object({
 type CreateCallType = z.infer<typeof createCallSchema>;
 
 const createCall = async (args: CreateCallType) => {
-  const response = await db.insert(calls).values(args).returning();
+  const sanitizedArgs = {
+    ...args,
+    payload: sanitizeForStorage(args.payload),
+    usage: sanitizeForStorage(args.usage),
+    result: sanitizeForStorage(args.result),
+    logs: sanitizeForStorage(args.logs),
+    errors: sanitizeForStorage(args.errors),
+  };
+  const response = await db.insert(calls).values(sanitizedArgs).returning();
   if (!response[0]) throw new AppError(ERROR_CODES.DB_INSERT_FAILED, "Failed to create call item", {
-    ...args
+    ...sanitizedArgs
   });
   return response[0];
 };
@@ -50,7 +106,10 @@ const updateCallSchema = z.object({
 type UpdateCall = z.infer<typeof updateCallSchema>;
 
 const updateCall = async (args: UpdateCall) => {
-  const { usage, result, logs, errors } = args;
+  const usage = sanitizeForStorage(args.usage);
+  const result = sanitizeForStorage(args.result);
+  const logs = sanitizeForStorage(args.logs);
+  const errors = sanitizeForStorage(args.errors);
   const response = await db.update(calls).set({ usage, result, logs, errors }).where(eq(calls.id, args.id)).returning();
   if (!response[0]) throw new AppError(ERROR_CODES.DB_QUERY_FAILED, "Failed to update ", {
     ...args

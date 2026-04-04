@@ -1,16 +1,17 @@
 import { AppError, ERROR_CODES } from "@/lib/errors";
 import { generateObject, generateText } from "ai";
-import { db, schemas, organizations } from "@/lib/db/runtime";
+import { schemas } from "@/lib/db/runtime";
 import { claudeMain } from "@/lib/ai/models";
 import { prompts } from '@/lib/ai/prompts';
 import { readPage, searchSite } from '@/lib/ai/tools';
 import { observePrepareSteps } from '@/lib/ai/observability';
 import { utils } from '@/lib/firecrawl';
 import { orgTaggingAgent } from '@/lib/ai/agents/minor/orgTaggingAgent';
+import { hasLowSignalContent, isBlockedOrganizationUrl, isUnknownValue } from "@/lib/quality/content";
+import { upsertOrganization } from "@/lib/pipeline/organizations";
 import { z } from 'zod';
 import type { AgentHelpers, AgentResult } from "../helpers/types";
 import type { QueuedItem } from "@/lib/db/functions/queues";
-import type { Tool } from 'ai';
 
 const preFetchedDataSchema = z.object({
   url: z.string(),
@@ -66,8 +67,24 @@ const getObjectData = async (url: string, primaryData: any, usage: unknown[]) =>
       id: true,
       createdAt: true,
       updatedAt: true,
+      canonicalDomain: true,
+      careersDomain: true,
+      careersCandidates: true,
+      careersProvider: true,
+      careersDiscoveryMethod: true,
+      careersConfidence: true,
+      qualificationStatus: true,
+      ownershipStatus: true,
+      operationsStatus: true,
+      canadianConfidence: true,
+      qualificationEvidenceSummary: true,
+      evidenceUrls: true,
+      reviewReason: true,
+      lastQualifiedAt: true,
+      lastCareersValidatedAt: true,
+      lastSeenAt: true,
     }).extend({
-      careersPage: z.string().describe("The URL of the careers page"),
+      careersPage: z.string().optional().describe("The URL of the careers page if one is clearly identifiable"),
     }),
     prompt: prompts.getNewOrganization(primaryData.text, url),
   });
@@ -76,20 +93,35 @@ const getObjectData = async (url: string, primaryData: any, usage: unknown[]) =>
   return objectData.object;
 };
 
-const insertOrganization = async (orgData: any, url: string) => {
+const persistOrganization = async (orgData: any, url: string) => {
   const uploadValues = schemas.organizations.insert.omit({
     id: true,
     createdAt: true,
     updatedAt: true,
+    canonicalDomain: true,
+    careersDomain: true,
+    careersCandidates: true,
+    careersProvider: true,
+    careersDiscoveryMethod: true,
+    careersConfidence: true,
+    qualificationStatus: true,
+    ownershipStatus: true,
+    operationsStatus: true,
+    canadianConfidence: true,
+    qualificationEvidenceSummary: true,
+    evidenceUrls: true,
+    reviewReason: true,
+    lastQualifiedAt: true,
+    lastCareersValidatedAt: true,
+    lastSeenAt: true,
   }).safeParse(orgData);
   if (uploadValues.error) throw new AppError(ERROR_CODES.SCHEMA_PARSE_FAILED, "Failed to parse extracted organization object", { ...uploadValues.error });
 
-  const newOrganization = await db.insert(organizations).values({
+  return await upsertOrganization({
     ...uploadValues.data,
-    website: url,
-  }).returning();
-  if (!newOrganization[0]) throw new AppError(ERROR_CODES.DB_INSERT_FAILED, "Failed to insert organization to db");
-  return newOrganization[0];
+    url,
+    careersPage: orgData.careersPage,
+  });
 };
 
 const tagOrganization = async (
@@ -138,9 +170,17 @@ const organizationAgent = async (
   }> = [];
 
   try {
+    if (isBlockedOrganizationUrl(payload.url)) {
+      throw new Error(`Rejected blocked organization URL: ${payload.url}`);
+    }
+
     logs.push("Fetching home page...");
     const homeDoc = await getHomePage(payload.url, payload.preFetchedData);
     logs.push(`Fetched home page: ${homeDoc.markdown.length} chars, ${homeDoc.links.length} links (source: ${homeDoc.source}, age: ${homeDoc.age}ms)`);
+
+    if (hasLowSignalContent(homeDoc.markdown)) {
+      throw new Error(`Rejected low-signal organization page: ${payload.url}`);
+    }
 
     logs.push("Discovering organization primary data...");
     const primaryData = await getPrimaryData(homeDoc.markdown, homeDoc.links, payload.url);
@@ -151,9 +191,13 @@ const organizationAgent = async (
     const objectData = await getObjectData(payload.url, primaryData, usage);
     logs.push(`Extracted organization: ${objectData.name}`);
 
-    logs.push("Inserting organization to database...");
-    const newOrganization = await insertOrganization(objectData, payload.url);
-    logs.push(`Created organization: ${newOrganization.id} - ${newOrganization.name}`);
+    if (isUnknownValue(objectData.name)) {
+      throw new Error(`Rejected low-quality organization extraction for ${payload.url}`);
+    }
+
+    logs.push("Persisting organization to database...");
+    const newOrganization = await persistOrganization(objectData, payload.url);
+    logs.push(`Persisted organization: ${newOrganization.id} - ${newOrganization.name}`);
 
     logs.push("Tagging organization...");
     const taggingResult = await tagOrganization(
@@ -165,17 +209,25 @@ const organizationAgent = async (
       logs,
     );
 
-    logs.push("Queueing job board exploration...");
+    logs.push("Queueing organization qualification...");
     childQueueItems.push({
       payload: {
         organizationId: newOrganization.id,
-        careersUrl: objectData.careersPage,
-        companyName: newOrganization.name,
+        name: newOrganization.name,
+        url: payload.url,
+        careersPage: objectData.careersPage,
+        preFetchedData: {
+          url: payload.url,
+          markdown: homeDoc.markdown,
+          links: homeDoc.links,
+          pulledAt: homeDoc.pulledAt,
+          freshTil: Date.now() + 24 * 60 * 60 * 1000,
+        },
       },
-      agent: "jobBoardAgent",
+      agent: "qualificationAgent",
       maxRetries: 3,
     });
-    logs.push(`Queued jobBoardAgent for ${newOrganization.name} at ${objectData.careersPage}`);
+    logs.push(`Queued qualificationAgent for ${newOrganization.name}`);
 
     const result = {
       organization: { id: newOrganization.id, name: newOrganization.name, website: newOrganization.website },
@@ -189,13 +241,17 @@ const organizationAgent = async (
     };
 
     if (helpers.parentCallId) {
-      await helpers.updateCall({
-        id: helpers.parentCallId,
-        usage,
-        logs,
-        result,
-        errors: [],
-      });
+      try {
+        await helpers.updateCall({
+          id: helpers.parentCallId,
+          usage,
+          logs,
+          result,
+          errors: [],
+        });
+      } catch (updateErr) {
+        logs.push(`Call update failed: ${updateErr instanceof Error ? updateErr.message : String(updateErr)}`);
+      }
     }
 
     return {
@@ -211,13 +267,17 @@ const organizationAgent = async (
     logs.push(`Error: ${errorMessage}`);
 
     if (helpers.parentCallId) {
-      await helpers.updateCall({
-        id: helpers.parentCallId,
-        usage,
-        logs,
-        result: null,
-        errors: [{ message: errorMessage, stack: errorStack }],
-      });
+      try {
+        await helpers.updateCall({
+          id: helpers.parentCallId,
+          usage,
+          logs,
+          result: null,
+          errors: [{ message: errorMessage, stack: errorStack }],
+        });
+      } catch (updateErr) {
+        logs.push(`Call update failed: ${updateErr instanceof Error ? updateErr.message : String(updateErr)}`);
+      }
     }
 
     return {

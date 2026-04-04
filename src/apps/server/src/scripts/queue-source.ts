@@ -29,6 +29,7 @@ const queueSource = async (source: SourceConfig) => {
     payload: {
       home: source.home,
       portfolio: source.portfolio,
+      kind: source.kind,
     },
     agent: "sourceAgent",
   });
@@ -75,7 +76,7 @@ const main = async () => {
   } else if (args.length === 2) {
     // Two arguments: custom home and portfolio URLs
     const [home, portfolio] = args;
-    await processSources([{ name: "Custom Source", home, portfolio }]);
+    await processSources([{ name: "Custom Source", home, portfolio, kind: "curated_directory" }]);
   } else if (args[0] === "--help" || args[0] === "-h") {
     console.log(`
 Usage:

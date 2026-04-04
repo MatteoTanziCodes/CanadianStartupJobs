@@ -32,7 +32,7 @@ city: text("city").notNull(),
 province: text("province").notNull(),
 description: text("description").notNull(),
 website: text("website").notNull(),
-careersPage: text("careersPage").notNull(),
+careersPage: text("careersPage"),
 industry: text("industry").notNull(),
 
 <!-- /Goal -->
@@ -44,4 +44,6 @@ Website URL: ${url}
 
 Markdown content:
 ---
-${markdown}`;
+${markdown}
+
+If a careers/jobs page cannot be confirmed from the evidence, omit careersPage instead of guessing.`;
