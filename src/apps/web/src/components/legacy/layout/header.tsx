@@ -1,7 +1,7 @@
 "use client";
 
-import JobFilters from "@/components/layout/jobFilters";
-import SearchBar from "@/components/layout/searchbar";
+import JobFilters from "@/components/legacy/layout/jobFilters";
+import SearchBar from "@/components/legacy/layout/searchbar";
 import { useJobsContext } from "@/contexts/jobs";
 import { COLOURS } from "@/utils/constants";
 

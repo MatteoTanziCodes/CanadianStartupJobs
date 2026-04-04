@@ -17,9 +17,7 @@ export default function JobList(props: JobListProps = {}) {
   const { maxHeight } = props;
   const computedMaxHeight =
     typeof maxHeight === "number" ? Math.max(160, maxHeight) : undefined;
-  const [isMobile, setIsMobile] = useState(
-    typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches
-  );
+  const [isMobile, setIsMobile] = useState(false);
   const firstCardRef = useRef<HTMLDivElement | null>(null);
   const [cardHeight, setCardHeight] = useState<number>();
   const { filteredJobs, selectJob, selectedJobId } = useJobsContext();
@@ -29,9 +27,10 @@ export default function JobList(props: JobListProps = {}) {
   const router = useRouter();
   const jobCount = filteredJobs.length;
   const totalPages = isMobile ? 1 : Math.max(1, Math.ceil(jobCount / itemsPerPage));
+  const activePage = isMobile ? 1 : Math.min(currentPage, totalPages);
   const displayedJobs = isMobile
     ? filteredJobs
-    : filteredJobs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    : filteredJobs.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -63,10 +62,6 @@ export default function JobList(props: JobListProps = {}) {
       window.removeEventListener("resize", measure);
     };
   }, [isMobile, filteredJobs.length, firstJobKey]);
-
-  // useEffect(() => {
-  //   setCurrentPage(1);
-  // }, [isMobile, jobCount]);
 
   const handleJobClick = (jobId: string) => {
     if (isMobile) {
@@ -140,18 +135,18 @@ export default function JobList(props: JobListProps = {}) {
             type="button"
             className="rounded-full border border-black/10 px-3 py-1 text-sm text-neutral-700 disabled:cursor-not-allowed disabled:opacity-40"
             onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-            disabled={currentPage === 1}
+            disabled={activePage === 1}
           >
             Previous
           </button>
           <span className="text-xs text-neutral-500">
-            Page {currentPage} of {totalPages}
+            Page {activePage} of {totalPages}
           </span>
           <button
             type="button"
             className="rounded-full border border-black/10 px-3 py-1 text-sm text-neutral-700 disabled:cursor-not-allowed disabled:opacity-40"
             onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-            disabled={currentPage === totalPages}
+            disabled={activePage === totalPages}
           >
             Next
           </button>

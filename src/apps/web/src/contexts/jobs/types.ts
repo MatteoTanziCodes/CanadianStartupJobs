@@ -27,10 +27,13 @@ export type JobsContextValue = {
   jobIds: string[];
   filteredJobIds: string[];
   filteredJobs: Job[];
+  selectedJobId: string | null;
+  selectedJob: Job | null;
   searchTerm: string;
   setSearchTerm: (term: string) => void;
   filters: FilterState;
   setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
+  selectJob: (id: string) => void;
   isLoading: boolean;
   currentPage: number;
   totalPages: number;

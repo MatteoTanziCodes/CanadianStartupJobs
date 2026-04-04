@@ -7,8 +7,8 @@ import {
   FILTER_DROPDOWN_CONFIG,
   FilterDropdownConfig,
   FilterState,
-} from "@/components/jobs/filterConfig";
-import { useJobsContext } from "@/components/jobs/jobsProvider";
+} from "@/components/legacy/jobs/filterConfig";
+import { useJobsContext } from "@/contexts/jobs";
 
 export type DropdownFilters = FilterState;
 

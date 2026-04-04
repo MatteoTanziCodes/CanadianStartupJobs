@@ -4,7 +4,7 @@ import "./globals.css";
 import { COLOURS } from "@/utils/constants";
 import { Toaster } from "@/components/ui/toaster";
 import { Providers } from "@/components/Providers";
-import Sidebar from "@/components/layout/Sidebar";
+import Sidebar from "@/components/legacy/Sidebar";
 import { Footer } from "@/components/legacy/layout/footer";
 
 const canadianFlagEmoji = "\u{1F1E8}\u{1F1E6}";

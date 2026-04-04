@@ -3,6 +3,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Header from "@/components/legacy/layout/header";
+import HeroSection from "@/components/legacy/layout/heroSection";
 import { COLOURS } from "@/utils/constants";
 
 const Homepage: React.FC = () => {
@@ -58,7 +59,7 @@ const Homepage: React.FC = () => {
       <div className="shrink-0">
         <Header />
       </div>
-      {/* {isDesktop && (
+      {isDesktop && (
         <div className="flex min-h-0 flex-col overflow-visible">
           <div
             ref={heroViewportRef}
@@ -68,7 +69,7 @@ const Homepage: React.FC = () => {
             <HeroSection maxHeight={heroMaxHeight} />
           </div>
         </div>
-      )} */}
+      )}
     </div>
   );
 };
