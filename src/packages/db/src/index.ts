@@ -1,5 +1,5 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
 import {
   organizations,
   jobBoardCaches,
@@ -185,18 +185,11 @@ const connectionString =
   process.env.DATABASE_URL ||
   `postgresql://${process.env.POSTGRES_USER || "postgres"}:${process.env.POSTGRES_PASSWORD || "postgres"}@${process.env.POSTGRES_HOST || "localhost"}:${process.env.POSTGRES_PORT || "5433"}/${process.env.POSTGRES_DB || "canadian_startup_db"}`;
 
-// Create postgres client
-const client = postgres(
-  process.env.DB_SCHEMA
-    ? `${connectionString}${connectionString.includes("?") ? "&" : "?"}options=-c%20search_path%3D${process.env.DB_SCHEMA}`
-    : connectionString,
-  {
-    max: 10,
-    idle_timeout: 20,
-    connect_timeout: 10,
-    onnotice: () => {}, // suppress notices
-  }
-);
+const databaseUrl = process.env.DB_SCHEMA
+  ? `${connectionString}${connectionString.includes("?") ? "&" : "?"}options=-c%20search_path%3D${process.env.DB_SCHEMA}`
+  : connectionString;
+
+const client = neon(databaseUrl);
 
 // Create drizzle instance
 export const db = drizzle(client, {
