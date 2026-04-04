@@ -2,7 +2,7 @@
   "name": "canadian-startup-jobs",
   "private": true,
   "scripts": {
-    "deploy:web": "cd src/apps/web && npm ci --workspaces=false && npx wrangler deploy",
-    "deploy:web:preview": "cd src/apps/web && npm ci --workspaces=false && npx wrangler versions upload"
+    "deploy:web": "cd src/apps/web && npm ci --workspaces=false && npm run deploy",
+    "deploy:web:preview": "cd src/apps/web && npm ci --workspaces=false && npm run deploy"
   }
 }
