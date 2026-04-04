@@ -1,14 +1,17 @@
 import { eq } from "drizzle-orm";
-import { db, organizations } from "@canadian-startup-jobs/db";
-import { z } from "zod";
+import { type Database, organizations } from "@canadian-startup-jobs/db";
 import { AppError, ERROR_CODES } from "@/lib/errors";
 
-type organizationsInsert = typeof organizations.$inferInsert;
-type organizationsSelect = typeof organizations.$inferSelect;
+type OrganizationsSelect = typeof organizations.$inferSelect;
 
-const getOrganizationById = async (id: number): Promise<organizationsSelect> => {
+const getOrganizationById = async (
+  db: Database,
+  id: number,
+): Promise<OrganizationsSelect> => {
   const result = await db.select().from(organizations).where(eq(organizations.id, id)).limit(1);
-  if (!result[0]) throw new AppError(ERROR_CODES.DB_QUERY_FAILED, "Organization not found", { id });
+  if (!result[0]) {
+    throw new AppError(ERROR_CODES.DB_QUERY_FAILED, "Organization not found", { id });
+  }
   return result[0];
 };
 

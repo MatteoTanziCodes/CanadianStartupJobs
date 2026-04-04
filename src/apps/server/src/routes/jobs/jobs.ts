@@ -1,10 +1,12 @@
 import { create_jobs, getJobWithRichData, countJobs, listJobs, jobCreateSchema } from "@/lib/db/functions/jobs/jobs";
 import { Hono } from "hono";
 import { idSchema } from "@/routes/types/types";
+import type { AppEnv } from "@/types/app";
 
-const app = new Hono();
+const app = new Hono<AppEnv>();
 
 app.get("/", async (c) => {
+  const db = c.get("db");
   const skip = Number(c.req.query("skip")) || 0;
   const take = Number(c.req.query("take")) || 10;
 
@@ -16,8 +18,8 @@ app.get("/", async (c) => {
     roleId: c.req.query("roleId") ? Number(c.req.query("roleId")) : undefined,
   };
 
-  const jobs = await listJobs(skip, take, filters);
-  const countOfJobs = await countJobs(filters);
+  const jobs = await listJobs(db, skip, take, filters);
+  const countOfJobs = await countJobs(db, filters);
 
   const responseObject = {
     count: countOfJobs,
@@ -28,6 +30,7 @@ app.get("/", async (c) => {
 });
 
 app.post("/", async (c) => {
+  const db = c.get("db");
   const body = await c.req.json();
   const parsed = jobCreateSchema.safeParse(body);
 
@@ -35,7 +38,7 @@ app.post("/", async (c) => {
     return c.json({ error: "Invalid input", issues: parsed.error.issues }, 400);
   }
 
-  const success = await create_jobs(parsed.data);
+  const success = await create_jobs(db, parsed.data);
 
   if (!success) {
     return c.json({ error: "Failed to create job" }, 500);
@@ -45,6 +48,7 @@ app.post("/", async (c) => {
 });
 
 app.get("/:id", async (c) => {
+  const db = c.get("db");
   const parsed = idSchema.safeParse({ id: c.req.param("id") });
 
   if (!parsed.success) {
@@ -52,7 +56,7 @@ app.get("/:id", async (c) => {
   }
 
   try {
-    const job = await getJobWithRichData(parsed.data.id);
+    const job = await getJobWithRichData(db, parsed.data.id);
     return c.json(job);
   } catch (err) {
     return c.json({ error: "Job not found" }, 404);

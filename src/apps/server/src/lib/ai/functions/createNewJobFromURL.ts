@@ -1,5 +1,5 @@
-import { google } from '@ai-sdk/google';
-import { db, schemas, jobs, } from "@canadian-startup-jobs/db";
+import { claudeMain } from "@/lib/ai/models";
+import { db, schemas, jobs, } from "@/lib/db/runtime";
 import { generateObject, generateText } from "ai";
 import type { GenerateTextResult, Tool } from 'ai';
 import { prompts } from '@/lib/ai/prompts';
@@ -22,7 +22,7 @@ const getHomePage = async (url: string) => {
 
 const getPrimaryData = async (markdown: string, links: string[], url: string) => {
   return await generateText({
-    model: google('gemini-2.5-pro'),
+    model: claudeMain(),
     prompt: prompts.discoverNewJob(markdown, links, url),
     tools: {
       readPage,
@@ -42,7 +42,7 @@ const getObjectData = async (url: string, primaryData: GenerateTextResult<{
     }, string>;
 }, never>) => {
   const objectData = await generateObject({
-    model: google('gemini-2.5-pro'),
+    model: claudeMain(),
     schema: schemas.jobs.insert.omit({
         id: true,
         createdAt: true,

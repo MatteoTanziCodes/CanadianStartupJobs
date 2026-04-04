@@ -3,6 +3,9 @@ self.__BUILD_MANIFEST = {
     "afterFiles": [
       {
         "source": "/job-board/ph/static/:path*"
+      },
+      {
+        "source": "/job-board/api/v1/:path*"
       }
     ],
     "beforeFiles": [],

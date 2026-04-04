@@ -1,16 +1,15 @@
-import { SHA256 } from "bun";
-import { db, schemas, jobBoardCaches, orgsJobBoardCaches } from "@canadian-startup-jobs/db";
+import { sha256Hex } from "@/lib/hash";
+import { db, schemas, jobBoardCaches, orgsJobBoardCaches } from "@/lib/db/runtime";
 import { AppError, ERROR_CODES } from "@/lib/errors";
 
 export async function createNewJobBoardCache(url: string) {
   const htmlPayload = await fetch(url);
-  const hasher = new SHA256();
-  const hash = hasher.digest(await htmlPayload.bytes())
+  const hash = await sha256Hex(await htmlPayload.arrayBuffer());
   const now = Date.now();
   const args = schemas.jobBoardCaches.insert.safeParse({
     url,
     freshTil: now + (7 * 24 * 60 * 60 * 1000),
-    lastHash: hash.toString()
+    lastHash: hash
   });
   if (args.error) throw new AppError(ERROR_CODES.SCHEMA_PARSE_FAILED, "Failed to parse job board creation args", { ...args.error });
   const newJobBoard = await db.insert(jobBoardCaches).values(args.data).returning();

@@ -1,85 +1,41 @@
-
 import { eq, asc, desc } from "drizzle-orm";
-import { db, roles } from "@canadian-startup-jobs/db";
+import { type Database, roles } from "@canadian-startup-jobs/db";
 
-type rolesInsert = typeof roles.$inferInsert;
-type rolesSelect = typeof roles.$inferSelect;
-
-const config_roles = {
-  pagination: {
-    skip: 10,
-    take: 10,
-    order: desc,
-  },
-};
-
-const orderAsc = asc(roles.id);
-const orderDesc = desc(roles.id);
-const orderStatement = (order?: "asc" | "desc"): typeof orderAsc => {
-  const direction = order ?? config_roles.pagination.order;
-  if (direction === "asc") {
-    return orderAsc;
-  }
-  return orderDesc;
-};
-
-// ==============
-//   Basic CRUD
-// ==============
-
-const create_roles = async (
-  insert: rolesInsert,
-): Promise<boolean> => {
-  const result = await db
-    .insert(roles)
-    .values(insert)
-    .onConflictDoNothing()
-    .returning({ id: roles.id });
-  if (result.length == 0) return false;
-  return true;
-};
-
-const delete_roles = async (
-  select: rolesSelect,
-): Promise<boolean> => {
-  const result = await db
-    .delete(roles)
-    .where(eq(roles.id, select.id))
-    .returning({ deletedId: roles.id });
-  if (result.length == 0) return false;
-  return true;
-};
+type RolesInsert = typeof roles.$inferInsert;
+type RolesSelect = typeof roles.$inferSelect;
 
 const get_roles = async (
+  db: Database,
   skip?: number,
   take?: number,
   order?: "asc" | "desc",
-): Promise<rolesSelect[]> => {
-  const experienceLevelResults = await db
+): Promise<RolesSelect[]> =>
+  db
     .select()
     .from(roles)
-    .orderBy(orderStatement(order))
-    .limit(take ?? config_roles.pagination.take)
-    .offset(skip ?? config_roles.pagination.skip);
-  return experienceLevelResults;
+    .orderBy(order === "asc" ? asc(roles.id) : desc(roles.id))
+    .limit(take ?? 10)
+    .offset(skip ?? 0);
+
+const create_roles = async (db: Database, insert: RolesInsert): Promise<boolean> => {
+  const result = await db.insert(roles).values(insert).onConflictDoNothing().returning({ id: roles.id });
+  return result.length > 0;
+};
+
+const delete_roles = async (db: Database, select: RolesSelect): Promise<boolean> => {
+  const result = await db.delete(roles).where(eq(roles.id, select.id)).returning({ deletedId: roles.id });
+  return result.length > 0;
 };
 
 const update_roles = async (
-  select: rolesSelect,
-  insert: rolesInsert,
+  db: Database,
+  select: RolesSelect,
+  insert: RolesInsert,
 ): Promise<boolean> => {
-  const result = await db
-    .update(roles)
-    .set(insert)
-    .where(eq(roles.id, select.id))
-    .returning({ updatedId: roles.id });
-  if (result.length == 0) return false;
-  return true;
+  const result = await db.update(roles).set(insert).where(eq(roles.id, select.id)).returning({
+    updatedId: roles.id,
+  });
+  return result.length > 0;
 };
 
-export {
-  create_roles,
-  delete_roles,
-  get_roles,
-  update_roles,
-};
+export { create_roles, delete_roles, get_roles, update_roles };

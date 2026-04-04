@@ -1,38 +1,39 @@
-import { pgTable, serial, text } from "drizzle-orm/pg-core";
+import { sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { idColumn } from "../helpers";
 
-const provinces = pgTable("provinces", {
-  id: serial("id").primaryKey(),
+const provinces = sqliteTable("provinces", {
+  id: idColumn(),
   name: text("name").notNull().unique(),
   code: text("code").notNull().unique(),
 });
 
-const jobTypes = pgTable("job_types", {
-  id: serial("id").primaryKey(),
+const jobTypes = sqliteTable("job_types", {
+  id: idColumn(),
   name: text("name").notNull().unique(),
 });
 
-const experienceLevels = pgTable("experience_levels", {
-  id: serial("id").primaryKey(),
+const experienceLevels = sqliteTable("experience_levels", {
+  id: idColumn(),
   name: text("name").notNull().unique(),
 });
 
-const industries = pgTable("industries", {
-  id: serial("id").primaryKey(),
+const industries = sqliteTable("industries", {
+  id: idColumn(),
   name: text("name").notNull().unique(),
 });
 
-const roles = pgTable("roles", {
-  id: serial("id").primaryKey(),
+const roles = sqliteTable("roles", {
+  id: idColumn(),
   name: text("name").notNull().unique(),
 });
 
-const teamSize = pgTable("team_sizes", {
-  id: serial("id").primaryKey(),
+const teamSize = sqliteTable("team_sizes", {
+  id: idColumn(),
   name: text("name").notNull().unique(),
 });
 
-const raisingStage = pgTable("raising_stages", {
-  id: serial("id").primaryKey(),
+const raisingStage = sqliteTable("raising_stages", {
+  id: idColumn(),
   name: text("name").notNull().unique(),
 });
 

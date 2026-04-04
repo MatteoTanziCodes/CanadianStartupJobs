@@ -1,88 +1,50 @@
-
 import { eq, asc, desc } from "drizzle-orm";
-import { db, raisingStage } from "@canadian-startup-jobs/db";
+import { type Database, raisingStage } from "@canadian-startup-jobs/db";
 
-type raisingStageInsert = typeof raisingStage.$inferInsert;
-type raisingStageSelect = typeof raisingStage.$inferSelect;
+type RaisingStageInsert = typeof raisingStage.$inferInsert;
+type RaisingStageSelect = typeof raisingStage.$inferSelect;
 
-const config_raisingStage = {
-  pagination: {
-    skip: 10,
-    take: 10,
-    order: desc,
-  },
-};
+const get_raisingStage = async (
+  db: Database,
+  skip?: number,
+  take?: number,
+  order?: "asc" | "desc",
+): Promise<RaisingStageSelect[]> =>
+  db
+    .select()
+    .from(raisingStage)
+    .orderBy(order === "asc" ? asc(raisingStage.id) : desc(raisingStage.id))
+    .limit(take ?? 10)
+    .offset(skip ?? 0);
 
-
-const orderAsc = asc(raisingStage.id);
-const orderDesc = desc(raisingStage.id);
-const orderStatement = (order?: "asc" | "desc"): typeof orderAsc => {
-  const direction = order ?? config_raisingStage.pagination.order;
-  if (direction === "asc") {
-    return orderAsc;
-  }
-  return orderDesc;
-};
-
-
-// ==========
-// Basic CRUD
-// ==========
-
-const create_raisingStage = async (
-  insert: raisingStageInsert,
-): Promise<boolean> => {
+const create_raisingStage = async (db: Database, insert: RaisingStageInsert): Promise<boolean> => {
   const result = await db
     .insert(raisingStage)
     .values(insert)
     .onConflictDoNothing()
     .returning({ id: raisingStage.id });
-  if (result.length == 0) return false;
-  return true;
+  return result.length > 0;
 };
 
-
-const delete_raisingStage = async (
-  select: raisingStageSelect,
-): Promise<boolean> => {
+const delete_raisingStage = async (db: Database, select: RaisingStageSelect): Promise<boolean> => {
   const result = await db
     .delete(raisingStage)
     .where(eq(raisingStage.id, select.id))
     .returning({ deletedId: raisingStage.id });
-  if (result.length == 0) return false;
-  return true;
-};
-
-const get_raisingStage = async (
-  skip?: number,
-  take?: number,
-  order?: "asc" | "desc",
-): Promise<raisingStageSelect[]> => {
-  const experienceLevelResults = await db
-    .select()
-    .from(raisingStage)
-    .orderBy(orderStatement(order))
-    .limit(take ?? config_raisingStage.pagination.take)
-    .offset(skip ?? config_raisingStage.pagination.skip);
-  return experienceLevelResults;
+  return result.length > 0;
 };
 
 const update_raisingStage = async (
-  select: raisingStageSelect,
-  insert: raisingStageInsert,
+  db: Database,
+  select: RaisingStageSelect,
+  insert: RaisingStageInsert,
 ): Promise<boolean> => {
   const result = await db
     .update(raisingStage)
     .set(insert)
     .where(eq(raisingStage.id, select.id))
     .returning({ updatedId: raisingStage.id });
-  if (result.length == 0) return false;
-  return true;
+  return result.length > 0;
 };
 
-export {
-  create_raisingStage,
-  delete_raisingStage,
-  get_raisingStage,
-  update_raisingStage,
-};
+export { create_raisingStage, delete_raisingStage, get_raisingStage, update_raisingStage };

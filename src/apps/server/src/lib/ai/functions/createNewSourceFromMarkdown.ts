@@ -1,5 +1,5 @@
-import { google } from '@ai-sdk/google';
-import { db, schemas, sources } from "@canadian-startup-jobs/db";
+import { claudeFast } from "@/lib/ai/models";
+import { db, schemas, sources } from "@/lib/db/runtime";
 import { generateObject } from "ai";
 import { prompts } from '@/lib/ai/prompts';
 import { AppError, ERROR_CODES } from '@/lib/errors';
@@ -11,7 +11,7 @@ const insertSource = async (source: NewSource) => {
 
 export const createNewSourceFromMarkdown = async (markdown: string, url: string, portfolio: string) => {
   const objectData = await generateObject({
-    model: google('gemini-2.5-flash'),
+    model: claudeFast(),
     schema: schemas.sources.insert.omit({
         id: true,
         createdAt: true,

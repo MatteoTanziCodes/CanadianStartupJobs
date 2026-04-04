@@ -1,5 +1,4 @@
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+import { drizzle } from "drizzle-orm/d1";
 import {
   organizations,
   jobBoardCaches,
@@ -179,55 +178,43 @@ const schemas = {
     update: createUpdateSchema(queues),
   },
 };
+const schema = {
+  organizations,
+  jobBoardCaches,
+  orgsSizes,
+  orgsStages,
+  orgsProvinces,
+  orgsIndustries,
+  orgsJobs,
+  orgsJobBoardCaches,
+  jobs,
+  jobCaches,
+  jobsRoles,
+  jobsJobTypes,
+  jobsProvinces,
+  jobsIndustries,
+  jobsExperienceLevels,
+  jobsJobsCaches,
+  provinces,
+  jobTypes,
+  experienceLevels,
+  industries,
+  roles,
+  teamSize,
+  raisingStage,
+  sources,
+  portfolioCaches,
+  sourcesPortfolioCaches,
+  calls,
+  queues,
+};
 
-// Get database connection string from environment variables
-const connectionString =
-  process.env.DATABASE_URL ||
-  `postgresql://${process.env.POSTGRES_USER || "postgres"}:${process.env.POSTGRES_PASSWORD || "postgres"}@${process.env.POSTGRES_HOST || "localhost"}:${process.env.POSTGRES_PORT || "5433"}/${process.env.POSTGRES_DB || "canadian_startup_db"}`;
-
-const databaseUrl = process.env.DB_SCHEMA
-  ? `${connectionString}${connectionString.includes("?") ? "&" : "?"}options=-c%20search_path%3D${process.env.DB_SCHEMA}`
-  : connectionString;
-
-const client = neon(databaseUrl);
-
-// Create drizzle instance
-export const db = drizzle(client, {
-  schema: {
-    organizations,
-    jobBoardCaches,
-    orgsSizes,
-    orgsStages,
-    orgsProvinces,
-    orgsIndustries,
-    orgsJobs,
-    orgsJobBoardCaches,
-    jobs,
-    jobCaches,
-    jobsRoles,
-    jobsJobTypes,
-    jobsProvinces,
-    jobsIndustries,
-    jobsExperienceLevels,
-    jobsJobsCaches,
-    provinces,
-    jobTypes,
-    experienceLevels,
-    industries,
-    roles,
-    teamSize,
-    raisingStage,
-    sources,
-    portfolioCaches,
-    sourcesPortfolioCaches,
-    calls,
-    queues
-  },
-});
+export const createDb = (database: any) => drizzle(database, { schema });
 
 // Export schema for use in other services
 export * from "./schema/index";
 export {
+  schema,
   schemas,
   organizations,
   jobBoardCaches,
@@ -260,4 +247,4 @@ export {
 };
 
 // Export types
-export type Database = typeof db;
+export type Database = ReturnType<typeof createDb>;

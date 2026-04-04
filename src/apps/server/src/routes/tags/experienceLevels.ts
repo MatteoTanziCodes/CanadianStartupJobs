@@ -5,10 +5,12 @@ import {
   get_experienceLevels,
 } from "@/lib/db/functions/tags/experienceLevels";
 import { Hono } from "hono";
+import type { AppEnv } from "@/types/app";
 
-const app = new Hono();
+const app = new Hono<AppEnv>();
 
 app.get("/", async (c) => {
+  const db = c.get("db");
   const { skip, take, order } = c.req.query();
 
   const skipInt = skip ? parseInt(skip) : undefined;
@@ -16,6 +18,7 @@ app.get("/", async (c) => {
   const orderType = order === "asc" || order === "desc" ? order : undefined;
 
   const default_experienceLevels = await get_experienceLevels(
+    db,
     skipInt,
     takeInt,
     orderType,
@@ -24,8 +27,9 @@ app.get("/", async (c) => {
 });
 
 app.post("/", async (c) => {
+  const db = c.get("db");
   const body = await c.req.json();
-  const success = await create_experienceLevels(body);
+  const success = await create_experienceLevels(db, body);
   if (!success) {
     return c.json({ error: "Failed to create experience level" }, 500);
   }
@@ -33,8 +37,9 @@ app.post("/", async (c) => {
 });
 
 app.delete("/", async (c) => {
+  const db = c.get("db");
   const body = await c.req.json();
-  const success = await delete_experienceLevels(body);
+  const success = await delete_experienceLevels(db, body);
   if (!success) {
     return c.json({ error: "Failed to delete experience level" }, 500);
   }
@@ -42,9 +47,10 @@ app.delete("/", async (c) => {
 });
 
 app.put("/", async (c) => {
+  const db = c.get("db");
   const body = await c.req.json();
   const { select, insert } = body;
-  const success = await update_experienceLevels(select, insert);
+  const success = await update_experienceLevels(db, select, insert);
   if (!success) {
     return c.json({ error: "Failed to update experience level" }, 500);
   }

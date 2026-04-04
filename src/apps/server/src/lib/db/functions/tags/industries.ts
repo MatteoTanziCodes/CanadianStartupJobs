@@ -1,88 +1,50 @@
-
 import { eq, asc, desc } from "drizzle-orm";
-import { db, industries } from "@canadian-startup-jobs/db";
+import { type Database, industries } from "@canadian-startup-jobs/db";
 
-type industriesInsert = typeof industries.$inferInsert;
-type industriesSelect = typeof industries.$inferSelect;
+type IndustriesInsert = typeof industries.$inferInsert;
+type IndustriesSelect = typeof industries.$inferSelect;
 
-const config_industries = {
-  pagination: {
-    skip: 10,
-    take: 10,
-    order: desc,
-  },
-};
+const get_industries = async (
+  db: Database,
+  skip?: number,
+  take?: number,
+  order?: "asc" | "desc",
+): Promise<IndustriesSelect[]> =>
+  db
+    .select()
+    .from(industries)
+    .orderBy(order === "asc" ? asc(industries.id) : desc(industries.id))
+    .limit(take ?? 10)
+    .offset(skip ?? 0);
 
-
-const orderAsc = asc(industries.id);
-const orderDesc = desc(industries.id);
-const orderStatement = (order?: "asc" | "desc"): typeof orderAsc => {
-  const direction = order ?? config_industries.pagination.order;
-  if (direction === "asc") {
-    return orderAsc;
-  }
-  return orderDesc;
-};
-
-
-// ==========
-// Basic CRUD
-// ==========
-
-const create_industries = async (
-  insert: industriesInsert,
-): Promise<boolean> => {
+const create_industries = async (db: Database, insert: IndustriesInsert): Promise<boolean> => {
   const result = await db
     .insert(industries)
     .values(insert)
     .onConflictDoNothing()
     .returning({ id: industries.id });
-  if (result.length == 0) return false;
-  return true;
+  return result.length > 0;
 };
 
-
-const delete_industries = async (
-  select: industriesSelect,
-): Promise<boolean> => {
+const delete_industries = async (db: Database, select: IndustriesSelect): Promise<boolean> => {
   const result = await db
     .delete(industries)
     .where(eq(industries.id, select.id))
     .returning({ deletedId: industries.id });
-  if (result.length == 0) return false;
-  return true;
-};
-
-const get_industries = async (
-  skip?: number,
-  take?: number,
-  order?: "asc" | "desc",
-): Promise<industriesSelect[]> => {
-  const experienceLevelResults = await db
-    .select()
-    .from(industries)
-    .orderBy(orderStatement(order))
-    .limit(take ?? config_industries.pagination.take)
-    .offset(skip ?? config_industries.pagination.skip);
-  return experienceLevelResults;
+  return result.length > 0;
 };
 
 const update_industries = async (
-  select: industriesSelect,
-  insert: industriesInsert,
+  db: Database,
+  select: IndustriesSelect,
+  insert: IndustriesInsert,
 ): Promise<boolean> => {
   const result = await db
     .update(industries)
     .set(insert)
     .where(eq(industries.id, select.id))
     .returning({ updatedId: industries.id });
-  if (result.length == 0) return false;
-  return true;
+  return result.length > 0;
 };
 
-export {
-  create_industries,
-  delete_industries,
-  get_industries,
-  update_industries,
-};
+export { create_industries, delete_industries, get_industries, update_industries };

@@ -1,7 +1,7 @@
 import { AppError, ERROR_CODES } from "@/lib/errors";
 import { generateObject, generateText } from "ai";
-import { google } from "@ai-sdk/google";
-import { db, schemas, organizations } from "@canadian-startup-jobs/db";
+import { db, schemas, organizations } from "@/lib/db/runtime";
+import { claudeMain } from "@/lib/ai/models";
 import { prompts } from '@/lib/ai/prompts';
 import { readPage, searchSite } from '@/lib/ai/tools';
 import { observePrepareSteps } from '@/lib/ai/observability';
@@ -49,7 +49,7 @@ type OrganizationAgentPayloadArgs = z.infer<typeof organizationAgentPayloadSchem
 
 const getPrimaryData = async (markdown: string, links: string[], url: string) => {
   return await generateText({
-    model: google('gemini-2.5-pro'),
+    model: claudeMain(),
     prompt: prompts.discoverNewOrganization(markdown, links, url),
     tools: {
       readPage,
@@ -61,7 +61,7 @@ const getPrimaryData = async (markdown: string, links: string[], url: string) =>
 
 const getObjectData = async (url: string, primaryData: any, usage: unknown[]) => {
   const objectData = await generateObject({
-    model: google('gemini-2.5-pro'),
+    model: claudeMain(),
     schema: schemas.organizations.insert.omit({
       id: true,
       createdAt: true,

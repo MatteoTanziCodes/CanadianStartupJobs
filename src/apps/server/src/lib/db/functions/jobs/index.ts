@@ -1,4 +1,4 @@
-import { db } from "@canadian-startup-jobs/db";
+import { db } from "@/lib/db/runtime";
 /**
  * Main Goal:
  * Search and filter jobs

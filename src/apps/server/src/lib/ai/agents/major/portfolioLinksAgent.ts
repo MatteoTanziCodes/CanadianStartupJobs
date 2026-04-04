@@ -1,6 +1,6 @@
 import { AppError, ERROR_CODES } from "@/lib/errors";
 import { generateObject } from "ai";
-import { google } from "@ai-sdk/google";
+import { claudeFast } from "@/lib/ai/models";
 import { utils } from "@/lib/firecrawl";
 import { z } from "zod";
 import type { AgentHelpers, AgentResult } from "../helpers/types";
@@ -27,7 +27,7 @@ const filterLinks = async (links: string[], usage: unknown[]) => {
   const linksText = links.map((l, i) => `${i + 1}. ${l}`).join("\n");
 
   const objectData = await generateObject({
-    model: google('gemini-2.5-flash'),
+    model: claudeFast(),
     schema: z.object({
       evaluations: z.array(filterLinkEvaluationSchema),
     }),

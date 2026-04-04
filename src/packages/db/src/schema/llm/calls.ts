@@ -1,24 +1,22 @@
 import {
-  pgTable,
-  serial,
+  sqliteTable,
   text,
   integer,
-  timestamp,
-  jsonb,
-} from "drizzle-orm/pg-core";
+} from "drizzle-orm/sqlite-core";
 import { queues } from "./queues";
+import { idColumn, timestampNowColumn } from "../helpers";
 
-const calls = pgTable("llm-calls", {
-  id: serial("id").primaryKey(),
-  payload: jsonb().notNull(),
+const calls = sqliteTable("llm-calls", {
+  id: idColumn(),
+  payload: text("payload", { mode: "json" }).notNull(),
   queueId: integer("queue_id").references(() => queues.id).notNull(),
   agent: text().notNull(),
-  usage: jsonb().notNull().default([]),
-  result: jsonb().notNull().default([]),
-  logs: jsonb().notNull().default([]),
-  errors: jsonb().notNull().default([]),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  usage: text("usage", { mode: "json" }).notNull().default("[]"),
+  result: text("result", { mode: "json" }).notNull().default("[]"),
+  logs: text("logs", { mode: "json" }).notNull().default("[]"),
+  errors: text("errors", { mode: "json" }).notNull().default("[]"),
+  createdAt: timestampNowColumn("created_at"),
+  updatedAt: timestampNowColumn("updated_at"),
 });
 
 export { calls };

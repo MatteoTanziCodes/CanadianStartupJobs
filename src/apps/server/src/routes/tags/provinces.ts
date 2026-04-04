@@ -5,10 +5,12 @@ import {
   get_provinces,
 } from "@/lib/db/functions/tags/provinces";
 import { Hono } from "hono";
+import type { AppEnv } from "@/types/app";
 
-const app = new Hono();
+const app = new Hono<AppEnv>();
 
 app.get("/", async (c) => {
+  const db = c.get("db");
   const { skip, take, order } = c.req.query();
 
   const skipInt = skip ? parseInt(skip) : undefined;
@@ -16,6 +18,7 @@ app.get("/", async (c) => {
   const orderType = order === "asc" || order === "desc" ? order : undefined;
 
   const default_provinces = await get_provinces(
+    db,
     skipInt,
     takeInt,
     orderType,
@@ -24,8 +27,9 @@ app.get("/", async (c) => {
 });
 
 app.post("/", async (c) => {
+  const db = c.get("db");
   const body = await c.req.json();
-  const success = await create_provinces(body);
+  const success = await create_provinces(db, body);
   if (!success) {
     return c.json({ error: "Failed to create provinces" }, 500);
   }
@@ -33,8 +37,9 @@ app.post("/", async (c) => {
 });
 
 app.delete("/", async (c) => {
+  const db = c.get("db");
   const body = await c.req.json();
-  const success = await delete_provinces(body);
+  const success = await delete_provinces(db, body);
   if (!success) {
     return c.json({ error: "Failed to delete provinces" }, 500);
   }
@@ -42,9 +47,10 @@ app.delete("/", async (c) => {
 });
 
 app.put("/", async (c) => {
+  const db = c.get("db");
   const body = await c.req.json();
   const { select, insert } = body;
-  const success = await update_provinces(select, insert);
+  const success = await update_provinces(db, select, insert);
   if (!success) {
     return c.json({ error: "Failed to update provinces" }, 500);
   }

@@ -1,15 +1,13 @@
 import { sources } from "@/lib/ai";
 import { AppError, ERROR_CODES } from "@/lib/errors";
 import { portfolioCaches } from "@canadian-startup-jobs/db";
-import Firecrawl from "@mendable/firecrawl-js";
+import { firecrawl } from "@/lib/firecrawl";
 import { addToQueue } from "@/lib/db/functions/queues";
 
 const testVC = {
   url: "https://www.garage.vc",
   portfolio: "https://www.garage.vc/#portfolio"
 };
-
-const firecrawl = new Firecrawl({ apiKey: process.env.FIRE_CRAWL_API_KEY });
 
 const getDoc = async (page: string) => {
   const {markdown, links} = await firecrawl.scrape(page, { formats: ['markdown', 'links'] });

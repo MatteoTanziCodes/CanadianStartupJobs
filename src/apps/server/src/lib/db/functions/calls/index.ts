@@ -13,7 +13,7 @@ const calls = pgTable("llm-calls", {
 });
 */
 import { eq } from "drizzle-orm";
-import { db, calls } from "@canadian-startup-jobs/db";
+import { db, calls } from "@/lib/db/runtime";
 import { z } from "zod";
 import { AppError, ERROR_CODES } from "@/lib/errors";
 

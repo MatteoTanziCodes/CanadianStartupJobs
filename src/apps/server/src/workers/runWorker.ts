@@ -1,5 +1,5 @@
 import { startLlMCallWorker, stopLlMCallWorker, isWorkerRunning } from "@/workers/llmCallWorker";
-import { db, queues } from "@canadian-startup-jobs/db";
+import { db, queues } from "@/lib/db/runtime";
 import { eq, sql } from "drizzle-orm";
 
 const resetStuckJobs = async () => {

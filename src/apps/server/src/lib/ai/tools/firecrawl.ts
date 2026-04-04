@@ -1,8 +1,16 @@
-import type { MapData } from "@mendable/firecrawl-js";
 import { tool } from "ai";
 import z from "zod";
 import { utils } from "@/lib/firecrawl";
 import { logGeneric } from "../observability";
+
+type MapData = {
+  links: Array<{
+    url: string;
+    category?: string;
+    title?: string;
+    description?: string;
+  }>;
+};
 
 const readPageResult = (url: string, markdown: string, links: string[]) => {
   return `

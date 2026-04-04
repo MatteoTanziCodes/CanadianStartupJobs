@@ -1,7 +1,7 @@
-import { pgTable, integer, primaryKey } from "drizzle-orm/pg-core";
+import { sqliteTable, integer, primaryKey } from "drizzle-orm/sqlite-core";
 import { sources, portfolioCaches } from "./index";
 
-const sourcesPortfolioCaches = pgTable(
+const sourcesPortfolioCaches = sqliteTable(
   "sources_portfolio_caches",
   {
     sourceId: integer("source_id")
