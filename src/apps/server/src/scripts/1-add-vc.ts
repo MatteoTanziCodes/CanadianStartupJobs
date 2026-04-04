@@ -1,13 +1,11 @@
 import { sources } from "@/lib/ai";
-import Firecrawl from "@mendable/firecrawl-js";
+import { firecrawl } from "@/lib/firecrawl";
 import { join } from "node:path";
 
 const testVC = {
   url: "https://www.garage.vc",
   portfolio: "https://www.garage.vc/#portfolio"
 };
-
-const firecrawl = new Firecrawl({ apiKey: process.env.FIRE_CRAWL_API_KEY });
 
 const getDoc = async (page: string) => {
   const doc = await firecrawl.scrape(page, { formats: ['markdown', 'links'] });

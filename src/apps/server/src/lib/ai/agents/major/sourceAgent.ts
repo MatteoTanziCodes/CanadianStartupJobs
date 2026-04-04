@@ -1,15 +1,13 @@
 import { AppError, ERROR_CODES } from "@/lib/errors";
-import Firecrawl from "@mendable/firecrawl-js";
 import { generateObject } from "ai";
-import { google } from "@ai-sdk/google";
-import { db, schemas, sources, portfolioCaches, sourcesPortfolioCaches } from "@canadian-startup-jobs/db";
+import { db, schemas, sources, portfolioCaches, sourcesPortfolioCaches } from "@/lib/db/runtime";
+import { claudeFast } from "@/lib/ai/models";
 import { prompts } from '@/lib/ai/prompts';
-import { SHA256 } from "bun";
+import { firecrawl } from "@/lib/firecrawl";
+import { sha256Hex } from "@/lib/hash";
 import z from "zod";
 import type { AgentHelpers, AgentResult } from "../helpers/types";
 import type { QueuedItem } from "@/lib/db/functions/queues";
-
-const firecrawl = new Firecrawl({ apiKey: process.env.FIRE_CRAWL_API_KEY });
 
 const getDoc = async (page: string) => {
   const { markdown, links } = await firecrawl.scrape(page, { formats: ["markdown", "links"] });
@@ -27,7 +25,7 @@ type SourceAgentPayloadArgs = z.infer<typeof sourceAgentPayloadSchema>;
 
 const createNewSourceFromMarkdown = async (markdown: string, url: string, portfolio: string, usage: unknown[]) => {
   const objectData = await generateObject({
-    model: google('gemini-2.5-flash'),
+    model: claudeFast(),
     schema: schemas.sources.insert.omit({
       id: true,
       createdAt: true,
@@ -48,13 +46,12 @@ const createNewSourceFromMarkdown = async (markdown: string, url: string, portfo
 
 const createNewPortfolioCache = async (url: string) => {
   const htmlPayload = await fetch(url);
-  const hasher = new SHA256();
-  const hash = hasher.digest(await htmlPayload.bytes());
+  const hash = await sha256Hex(await htmlPayload.arrayBuffer());
   const now = Date.now();
   const args = schemas.portfolioCaches.insert.safeParse({
     url,
     freshTil: now + (7 * 24 * 60 * 60 * 1000),
-    lastHash: hash.toString(),
+    lastHash: hash,
   });
   if (args.error) throw new AppError(ERROR_CODES.SCHEMA_PARSE_FAILED, "Failed to parse portfolio cache arguments", { ...args.error });
   const newPortfolio = await db.insert(portfolioCaches).values(args.data).returning();

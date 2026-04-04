@@ -4,22 +4,23 @@
     "dev": "bun run --hot src/index.ts",
     "deploy": "wrangler deploy",
     "preview": "wrangler versions upload",
+    "db:migrate:local": "wrangler d1 migrations apply canadianstartupjobs --local",
+    "db:migrate:remote": "wrangler d1 migrations apply canadianstartupjobs --remote",
+    "crawl:setup": "python -m pip install -r tools/requirements-crawl4ai.txt && python -m playwright install chromium",
     "gen:tags": "bun run src/scripts/createTagFunctions.ts",
     "gen:piv:jobs": "bun run src/scripts/createJobPivotFunctions.ts",
     "gen:piv:orgs": "bun run src/scripts/createOrgPivotFunctions.ts",
-    "queue-source": "bun run src/scripts/queue-source.ts"
+    "queue-source": "bun run src/scripts/queue-source.ts",
+    "run-worker": "bun run src/scripts/runWorker.ts"
   },
   "dependencies": {
-    "@ai-sdk/google": "^2.0.46",
+    "@ai-sdk/anthropic": "^2.0.31",
     "@ai-sdk/openai": "^2.0.86",
     "@canadian-startup-jobs/db": "file:../../packages/db",
-    "@mendable/firecrawl-js": "^4.9.0",
-    "@neondatabase/serverless": "^1.0.1",
     "ai": "^5.0.113",
     "drizzle-orm": "^0.45.2",
     "drizzle-zod": "^0.8.3",
     "hono": "^4.10.8",
-    "postgres": "^3.4.7",
     "zod": "^4.1.13"
   },
   "devDependencies": {

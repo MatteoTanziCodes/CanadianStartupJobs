@@ -5,6 +5,9 @@ import {
   provinces as provincesCRUD,
   raisingStage as raisingStageCRUD,
   teamSize as teamSizeCRUD,
+  experienceLevels as experienceLevelsCRUD,
+  jobTypes as jobTypesCRUD,
+  roles as rolesCRUD,
 } from "@/lib/db/functions/tags";
 import {
   orgPivots
@@ -126,7 +129,7 @@ const connectOrgToTag = tool({
 
 export const orgTools = {
   tags: {
-    list: listTags,
+    list: listOrgTags,
     create: createTag,
     connect: connectOrgToTag
   }

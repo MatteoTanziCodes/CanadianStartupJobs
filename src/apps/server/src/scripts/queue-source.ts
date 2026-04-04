@@ -1,30 +1,6 @@
 import { addToQueue } from "@/lib/db/functions/queues";
+import { DEFAULT_SOURCES, type SourceConfig } from "@/lib/pipeline/defaultSources";
 import { runWorker } from "@/workers/runWorker";
-
-interface SourceConfig {
-  name: string;
-  home: string;
-  portfolio: string;
-}
-
-// Example VC sources to process
-const SOURCES: SourceConfig[] = [
-  {
-    name: "Garage Capital",
-    home: "https://www.garage.vc",
-    portfolio: "https://www.garage.vc/#portfolio",
-  },
-  {
-    name: "Inovia Capital",
-    home: "https://www.inovia.vc",
-    portfolio: "https://www.inovia.vc/portfolio",
-  },
-  {
-    name: "Real Ventures",
-    home: "https://www.realventures.com",
-    portfolio: "https://www.realventures.com/companies",
-  },
-];
 
 // Helper function to validate URLs
 const isValidUrl = (url: string): boolean => {
@@ -95,7 +71,7 @@ const main = async () => {
 
   if (args.length === 0) {
     // No arguments: process all predefined sources
-    await processSources(SOURCES);
+    await processSources(DEFAULT_SOURCES);
   } else if (args.length === 2) {
     // Two arguments: custom home and portfolio URLs
     const [home, portfolio] = args;
@@ -111,7 +87,7 @@ Examples:
   bun run queue-source https://example.com https://example.com/portfolio
 
 Predefined sources:
-${SOURCES.map(s => `  - ${s.name}`).join("\n")}
+${DEFAULT_SOURCES.map(s => `  - ${s.name}`).join("\n")}
     `);
     process.exit(0);
   } else {

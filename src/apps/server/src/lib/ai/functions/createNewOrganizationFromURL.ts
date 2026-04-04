@@ -1,5 +1,5 @@
-import { google } from '@ai-sdk/google';
-import { db, schemas, organizations, } from "@canadian-startup-jobs/db";
+import { claudeMain } from "@/lib/ai/models";
+import { db, schemas, organizations, } from "@/lib/db/runtime";
 import { generateObject, generateText, stepCountIs, tool } from "ai";
 import { z } from "zod";
 import type { GenerateTextResult, Tool } from 'ai';
@@ -34,7 +34,7 @@ const getObjectData = async (url: string, primaryData: GenerateTextResult<{
     }, string>;
 }, never>) => {
   const objectData = await generateObject({
-    model: google('gemini-2.5-pro'),
+    model: claudeMain(),
     schema: schemas.organizations.insert.omit({
         id: true,
         createdAt: true,

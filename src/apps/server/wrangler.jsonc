@@ -6,6 +6,22 @@
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
   "preview_urls": true,
+  "vars": {
+    "ALLOWED_ORIGINS": "https://canadianstartupjobs.matteo-beatstanzi.workers.dev,http://localhost:3000,http://localhost:3001",
+    "ANTHROPIC_FAST_MODEL": "claude-haiku-4-5-20251001",
+    "ANTHROPIC_MAIN_MODEL": "claude-3-7-sonnet-latest"
+  },
+  "triggers": {
+    "crons": ["*/15 * * * *"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "canadianstartupjobs",
+      "database_id": "6528375b-dec8-4b6b-a1dc-ce3cdcf4b120",
+      "migrations_dir": "../../packages/db/d1"
+    }
+  ],
   "observability": {
     "enabled": true
   }

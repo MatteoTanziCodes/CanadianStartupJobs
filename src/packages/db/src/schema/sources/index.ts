@@ -1,23 +1,24 @@
-import { pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { sourcesPortfolioCaches } from "./pivots";
+import { idColumn, timestampColumn, timestampNowColumn } from "../helpers";
 
-const sources = pgTable("sources", {
-  id: serial("id").primaryKey(),
+const sources = sqliteTable("sources", {
+  id: idColumn(),
   name: text("name").notNull(),
   description: text("description").notNull(),
   website: text("website"),
   portfolio: text("portfolio"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestampNowColumn("created_at"),
+  updatedAt: timestampNowColumn("updated_at"),
 });
 
-const portfolioCaches = pgTable("portfolio_caches", {
-  id: serial("id").primaryKey(),
+const portfolioCaches = sqliteTable("portfolio_caches", {
+  id: idColumn(),
   url: text("url").notNull(),
-  freshTil: timestamp("fresh_til"),
+  freshTil: timestampColumn("fresh_til"),
   lastHash: text("last_hash"),
-  lastScrapedAt: timestamp("last_scraped_at").defaultNow().notNull(),
-  lastCheckedAt: timestamp("last_checked_at").defaultNow().notNull(),
+  lastScrapedAt: timestampNowColumn("last_scraped_at"),
+  lastCheckedAt: timestampNowColumn("last_checked_at"),
 });
 
 export { sources, portfolioCaches, sourcesPortfolioCaches };

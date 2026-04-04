@@ -1,0 +1,514 @@
+{
+    "wallTime": 0,
+    "cpuTime": 0,
+    "truncated": false,
+    "executionModel": "stateless",
+    "outcome": "ok",
+    "scriptVersion": {
+        "id": "fc57f762-e414-48a3-b67c-41fa66ab5a65"
+    },
+    "scriptName": "canadianstartupjobs-api",
+    "diagnosticsChannelEvents": [],
+    "exceptions": [],
+    "logs": [],
+    "eventTimestamp": 1775281210255,
+    "event": {
+        "request": {
+            "url": "https://canadianstartupjobs-api.matteo-beatstanzi.workers.dev/",
+            "method": "GET",
+            "headers": {
+                "accept-encoding": "gzip, br",
+                "cf-connecting-ip": "198.98.118.218",
+                "cf-ipcountry": "CA",
+                "cf-ray": "9e6dfa0c18f9ab45",
+                "cf-visitor": "{\"scheme\":\"https\"}",
+                "connection": "Keep-Alive",
+                "host": "canadianstartupjobs-api.matteo-beatstanzi.workers.dev",
+                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-CA) PowerShell/7.6.0",
+                "x-forwarded-proto": "https",
+                "x-real-ip": "198.98.118.218"
+            },
+            "cf": {
+                "httpProtocol": "HTTP/1.1",
+                "clientAcceptEncoding": "gzip, deflate, br",
+                "requestPriority": "",
+                "edgeRequestKeepAliveStatus": 1,
+                "requestHeaderNames": {},
+                "clientTcpRtt": 5,
+                "clientQuicRtt": 0,
+                "colo": "YYZ",
+                "asn": 21949,
+                "asOrganization": "Beanfield",
+                "country": "CA",
+                "isEUCountry": false,
+                "city": "Toronto",
+                "continent": "NA",
+                "region": "Ontario",
+                "regionCode": "ON",
+                "timezone": "America/Toronto",
+                "longitude": "-79.39864",
+                "latitude": "43.70643",
+                "postalCode": "M5A",
+                "tlsVersion": "TLSv1.3",
+                "tlsCipher": "AEAD-AES256-GCM-SHA384",
+                "tlsClientRandom": "LXhw+Uckhfb+4N208lf6zWCkuGY7sjaBDOCDJkpg3Mk=",
+                "tlsClientCiphersSha1": "kTkJ+HAwBvIuoPFncb1wEDLcgfg=",
+                "tlsClientExtensionsSha1": "Bxwn0Bs0z+5dY69ZcqleTRGmlpE=",
+                "tlsClientExtensionsSha1Le": "sb2ftGg4/laBHA9Q/MJ4X/0+cJY=",
+                "tlsExportedAuthenticator": {
+                    "clientHandshake": "def5df6d7fdfabf14c6b4296480b6eeac9c9e5e0c3b827eba402dc8af4d42702e06ce971a566301623bbbb8d4561165e",
+                    "serverHandshake": "694c2f8bf78df1fc7ef9bc8ad0bcd9a53fac2616e9de367d3be28e972965361ab6acecab633b874aab87bdaa650f153f",
+                    "clientFinished": "d680fd7e1c4194ea17e8dd755c9616b70e0f1e973e0500854bae65018e9e3614e50032c3d1787d2c822c2de6f0d79775",
+                    "serverFinished": "cddb78fb581e276584bb86ed546ec275ccb6de586809b68de8f7dccde71694e190c9e107e9d844e5f33e8679b8124493"
+                },
+                "tlsClientHelloLength": "471",
+                "tlsClientAuth": {
+                    "certPresented": "0",
+                    "certVerified": "NONE",
+                    "certRevoked": "0",
+                    "certIssuerDN": "",
+                    "certSubjectDN": "",
+                    "certIssuerDNRFC2253": "",
+                    "certSubjectDNRFC2253": "",
+                    "certIssuerDNLegacy": "",
+                    "certSubjectDNLegacy": "",
+                    "certSerial": "",
+                    "certIssuerSerial": "",
+                    "certSKI": "",
+                    "certIssuerSKI": "",
+                    "certFingerprintSHA1": "",
+                    "certFingerprintSHA256": "",
+                    "certNotBefore": "",
+                    "certNotAfter": "",
+                    "certRFC9440": "",
+                    "certRFC9440TooLarge": false,
+                    "certChainRFC9440": "",
+                    "certChainRFC9440TooLarge": false
+                },
+                "verifiedBotCategory": "",
+                "edgeL4": {
+                    "deliveryRate": 533041
+                }
+            }
+        },
+        "response": {
+            "status": 200
+        }
+    }
+}
+{
+    "wallTime": 83,
+    "cpuTime": 2,
+    "truncated": false,
+    "executionModel": "stateless",
+    "outcome": "ok",
+    "scriptVersion": {
+        "id": "fc57f762-e414-48a3-b67c-41fa66ab5a65"
+    },
+    "scriptName": "canadianstartupjobs-api",
+    "diagnosticsChannelEvents": [],
+    "exceptions": [],
+    "logs": [
+        {
+            "message": [
+                "Error: Failed query: select \"id\", \"title\", \"city\", \"province\", \"remote_ok\", \"salary_min\", \"salary_max\", \"description\", \"company\", \"job_board_url\", \"posting_url\", \"is_at_a_startup\", \"last_scraped_markdown\", \"created_at\", \"updated_at\" from \"jobs\" order by \"jobs\".\"created_at\" desc limit $1\nparams: 10"
+            ],
+            "level": "error",
+            "timestamp": 1775281210381
+        }
+    ],
+    "eventTimestamp": 1775281210300,
+    "event": {
+        "request": {
+            "url": "https://canadianstartupjobs-api.matteo-beatstanzi.workers.dev/jobs",
+            "method": "GET",
+            "headers": {
+                "accept-encoding": "gzip, br",
+                "cf-connecting-ip": "198.98.118.218",
+                "cf-ipcountry": "CA",
+                "cf-ray": "9e6dfa0c5aac34dc",
+                "cf-visitor": "{\"scheme\":\"https\"}",
+                "connection": "Keep-Alive",
+                "host": "canadianstartupjobs-api.matteo-beatstanzi.workers.dev",
+                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-CA) PowerShell/7.6.0",
+                "x-forwarded-proto": "https",
+                "x-real-ip": "198.98.118.218"
+            },
+            "cf": {
+                "httpProtocol": "HTTP/1.1",
+                "clientAcceptEncoding": "gzip, deflate, br",
+                "requestPriority": "",
+                "edgeRequestKeepAliveStatus": 1,
+                "requestHeaderNames": {},
+                "clientTcpRtt": 14,
+                "clientQuicRtt": 0,
+                "colo": "YYZ",
+                "asn": 21949,
+                "asOrganization": "Beanfield",
+                "country": "CA",
+                "isEUCountry": false,
+                "city": "Toronto",
+                "continent": "NA",
+                "region": "Ontario",
+                "regionCode": "ON",
+                "timezone": "America/Toronto",
+                "longitude": "-79.39864",
+                "latitude": "43.70643",
+                "postalCode": "M5A",
+                "tlsVersion": "TLSv1.3",
+                "tlsCipher": "AEAD-AES256-GCM-SHA384",
+                "tlsClientRandom": "baruEGtOx1vSBRmrAn0FOJuum4a06PuT7dNB7r0i4SU=",
+                "tlsClientCiphersSha1": "kTkJ+HAwBvIuoPFncb1wEDLcgfg=",
+                "tlsClientExtensionsSha1": "Bxwn0Bs0z+5dY69ZcqleTRGmlpE=",
+                "tlsClientExtensionsSha1Le": "sb2ftGg4/laBHA9Q/MJ4X/0+cJY=",
+                "tlsExportedAuthenticator": {
+                    "clientHandshake": "ffb2c7846f4771fbc9cc9fd34fd171ccf1dd0da1659f6670a615399933ecc8aa34e73a5b76a10a493f110f0dc0bef802",
+                    "serverHandshake": "0b0c9071d11888e385ddbae135a9287dacd0175b6dccf57fa384a9f676e35293e150d530e845a6dca05367e8e9060021",
+                    "clientFinished": "d706d8e057a43e1a88c37c3cf83a6351b80de29e383790ba2c1258ed262c29da8539aadae8564909d361bd48ee21ae4a",
+                    "serverFinished": "a3e4e571232868e8969d093d4d27572dbcf6d9cf7751c721a82fd008057640cb05b4dcca3e80b262be5aa674289b3158"
+                },
+                "tlsClientHelloLength": "471",
+                "tlsClientAuth": {
+                    "certPresented": "0",
+                    "certVerified": "NONE",
+                    "certRevoked": "0",
+                    "certIssuerDN": "",
+                    "certSubjectDN": "",
+                    "certIssuerDNRFC2253": "",
+                    "certSubjectDNRFC2253": "",
+                    "certIssuerDNLegacy": "",
+                    "certSubjectDNLegacy": "",
+                    "certSerial": "",
+                    "certIssuerSerial": "",
+                    "certSKI": "",
+                    "certIssuerSKI": "",
+                    "certFingerprintSHA1": "",
+                    "certFingerprintSHA256": "",
+                    "certNotBefore": "",
+                    "certNotAfter": "",
+                    "certRFC9440": "",
+                    "certRFC9440TooLarge": false,
+                    "certChainRFC9440": "",
+                    "certChainRFC9440TooLarge": false
+                },
+                "verifiedBotCategory": "",
+                "edgeL4": {
+                    "deliveryRate": 1036563
+                }
+            }
+        },
+        "response": {
+            "status": 500
+        }
+    }
+}
+{
+    "wallTime": 38,
+    "cpuTime": 1,
+    "truncated": false,
+    "executionModel": "stateless",
+    "outcome": "ok",
+    "scriptVersion": {
+        "id": "fc57f762-e414-48a3-b67c-41fa66ab5a65"
+    },
+    "scriptName": "canadianstartupjobs-api",
+    "diagnosticsChannelEvents": [],
+    "exceptions": [],
+    "logs": [
+        {
+            "message": [
+                "Error: Failed query: select \"id\", \"name\", \"code\" from \"provinces\" order by \"provinces\".\"id\" desc limit $1 offset $2\nparams: 10,10"
+            ],
+            "level": "error",
+            "timestamp": 1775281223559
+        }
+    ],
+    "eventTimestamp": 1775281223522,
+    "event": {
+        "request": {
+            "url": "https://canadianstartupjobs-api.matteo-beatstanzi.workers.dev/tags/provinces",
+            "method": "GET",
+            "headers": {
+                "accept-encoding": "gzip, br",
+                "cf-connecting-ip": "198.98.118.218",
+                "cf-ipcountry": "CA",
+                "cf-ray": "9e6dfa5efcfadda9",
+                "cf-visitor": "{\"scheme\":\"https\"}",
+                "connection": "Keep-Alive",
+                "host": "canadianstartupjobs-api.matteo-beatstanzi.workers.dev",
+                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-CA) PowerShell/7.6.0",
+                "x-forwarded-proto": "https",
+                "x-real-ip": "198.98.118.218"
+            },
+            "cf": {
+                "httpProtocol": "HTTP/1.1",
+                "clientAcceptEncoding": "gzip, deflate, br",
+                "requestPriority": "",
+                "edgeRequestKeepAliveStatus": 1,
+                "requestHeaderNames": {},
+                "clientTcpRtt": 3,
+                "clientQuicRtt": 0,
+                "colo": "YYZ",
+                "asn": 21949,
+                "asOrganization": "Beanfield",
+                "country": "CA",
+                "isEUCountry": false,
+                "city": "Toronto",
+                "continent": "NA",
+                "region": "Ontario",
+                "regionCode": "ON",
+                "timezone": "America/Toronto",
+                "longitude": "-79.39864",
+                "latitude": "43.70643",
+                "postalCode": "M5A",
+                "tlsVersion": "TLSv1.3",
+                "tlsCipher": "AEAD-AES256-GCM-SHA384",
+                "tlsClientRandom": "rxNmSAaAtbHzKYRnV3sENzGWLP7SctCSd9028JL7dyw=",
+                "tlsClientCiphersSha1": "kTkJ+HAwBvIuoPFncb1wEDLcgfg=",
+                "tlsClientExtensionsSha1": "Bxwn0Bs0z+5dY69ZcqleTRGmlpE=",
+                "tlsClientExtensionsSha1Le": "sb2ftGg4/laBHA9Q/MJ4X/0+cJY=",
+                "tlsExportedAuthenticator": {
+                    "clientHandshake": "79fa4546a16ce6bdfbd320081841926a954e826b5b35ff79020ced13a6d370a5ae86f70d9bceac4da7bfd7c6269746c7",
+                    "serverHandshake": "0d8ba52bef484624d5295d4d7594ddd3b8e251532811d7c55e827295bacfd528ea3dd6a0283211f46eeb528251043ae6",
+                    "clientFinished": "be986ef8155189d4b02c57286276aeadc5cb42e49da74d14474a99f5eeb1cc4e53203ceeec30234512a5cff683a44f61",
+                    "serverFinished": "a65563d66d4e417a5eb1fe95053cc5e68cd00ad6f6e067edbc16bb598b501f6c4137180e3ff2fd936470f3f3f2aa809c"
+                },
+                "tlsClientHelloLength": "471",
+                "tlsClientAuth": {
+                    "certPresented": "0",
+                    "certVerified": "NONE",
+                    "certRevoked": "0",
+                    "certIssuerDN": "",
+                    "certSubjectDN": "",
+                    "certIssuerDNRFC2253": "",
+                    "certSubjectDNRFC2253": "",
+                    "certIssuerDNLegacy": "",
+                    "certSubjectDNLegacy": "",
+                    "certSerial": "",
+                    "certIssuerSerial": "",
+                    "certSKI": "",
+                    "certIssuerSKI": "",
+                    "certFingerprintSHA1": "",
+                    "certFingerprintSHA256": "",
+                    "certNotBefore": "",
+                    "certNotAfter": "",
+                    "certRFC9440": "",
+                    "certRFC9440TooLarge": false,
+                    "certChainRFC9440": "",
+                    "certChainRFC9440TooLarge": false
+                },
+                "verifiedBotCategory": "",
+                "edgeL4": {
+                    "deliveryRate": 1005509
+                }
+            }
+        },
+        "response": {
+            "status": 500
+        }
+    }
+}
+{
+    "wallTime": 76,
+    "cpuTime": 1,
+    "truncated": false,
+    "executionModel": "stateless",
+    "outcome": "ok",
+    "scriptVersion": {
+        "id": "fc57f762-e414-48a3-b67c-41fa66ab5a65"
+    },
+    "scriptName": "canadianstartupjobs-api",
+    "diagnosticsChannelEvents": [],
+    "exceptions": [],
+    "logs": [
+        {
+            "message": [
+                "Error: Failed query: select \"id\", \"name\" from \"job_types\" order by \"job_types\".\"id\" desc limit $1 offset $2\nparams: 10,10"
+            ],
+            "level": "error",
+            "timestamp": 1775281223617
+        }
+    ],
+    "eventTimestamp": 1775281223541,
+    "event": {
+        "request": {
+            "url": "https://canadianstartupjobs-api.matteo-beatstanzi.workers.dev/tags/job-types",
+            "method": "GET",
+            "headers": {
+                "accept-encoding": "gzip, br",
+                "cf-connecting-ip": "198.98.118.218",
+                "cf-ipcountry": "CA",
+                "cf-ray": "9e6dfa5f1df5abd0",
+                "cf-visitor": "{\"scheme\":\"https\"}",
+                "connection": "Keep-Alive",
+                "host": "canadianstartupjobs-api.matteo-beatstanzi.workers.dev",
+                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-CA) PowerShell/7.6.0",
+                "x-forwarded-proto": "https",
+                "x-real-ip": "198.98.118.218"
+            },
+            "cf": {
+                "httpProtocol": "HTTP/1.1",
+                "clientAcceptEncoding": "gzip, deflate, br",
+                "requestPriority": "",
+                "edgeRequestKeepAliveStatus": 1,
+                "requestHeaderNames": {},
+                "clientTcpRtt": 3,
+                "clientQuicRtt": 0,
+                "colo": "YYZ",
+                "asn": 21949,
+                "asOrganization": "Beanfield",
+                "country": "CA",
+                "isEUCountry": false,
+                "city": "Toronto",
+                "continent": "NA",
+                "region": "Ontario",
+                "regionCode": "ON",
+                "timezone": "America/Toronto",
+                "longitude": "-79.39864",
+                "latitude": "43.70643",
+                "postalCode": "M5A",
+                "tlsVersion": "TLSv1.3",
+                "tlsCipher": "AEAD-AES256-GCM-SHA384",
+                "tlsClientRandom": "mJJGYjoJOUXP5277bh30CenjSAKrsCRpgEINwSyoL9U=",
+                "tlsClientCiphersSha1": "kTkJ+HAwBvIuoPFncb1wEDLcgfg=",
+                "tlsClientExtensionsSha1": "Bxwn0Bs0z+5dY69ZcqleTRGmlpE=",
+                "tlsClientExtensionsSha1Le": "sb2ftGg4/laBHA9Q/MJ4X/0+cJY=",
+                "tlsExportedAuthenticator": {
+                    "clientHandshake": "c1c8991c6ed833950f33dc3486617f02102b9990790fa3f75a0b2511edaf5a6f472c645b9b0b1b3a56e86142cc0c3906",
+                    "serverHandshake": "3f27a5f42338d354d1ca72f4476a214ca8a1a70008e78507ae471a32d0bb43cdd5dd1631bde48da714257811cf64e50e",
+                    "clientFinished": "7f057d2ef9cc6bb53fd266b0270ceca94b1220da3ab8369da01932100907f0594e46b7f0d6716b1ad79edc8d96e0d046",
+                    "serverFinished": "8373f9cf03eb66a7ad390ca0d5fcc3b355ab3b83833ba0e6a81b40dbfac12ce8a2c63ff835f6c9b489fd93968cd38c15"
+                },
+                "tlsClientHelloLength": "471",
+                "tlsClientAuth": {
+                    "certPresented": "0",
+                    "certVerified": "NONE",
+                    "certRevoked": "0",
+                    "certIssuerDN": "",
+                    "certSubjectDN": "",
+                    "certIssuerDNRFC2253": "",
+                    "certSubjectDNRFC2253": "",
+                    "certIssuerDNLegacy": "",
+                    "certSubjectDNLegacy": "",
+                    "certSerial": "",
+                    "certIssuerSerial": "",
+                    "certSKI": "",
+                    "certIssuerSKI": "",
+                    "certFingerprintSHA1": "",
+                    "certFingerprintSHA256": "",
+                    "certNotBefore": "",
+                    "certNotAfter": "",
+                    "certRFC9440": "",
+                    "certRFC9440TooLarge": false,
+                    "certChainRFC9440": "",
+                    "certChainRFC9440TooLarge": false
+                },
+                "verifiedBotCategory": "",
+                "edgeL4": {
+                    "deliveryRate": 662732
+                }
+            }
+        },
+        "response": {
+            "status": 500
+        }
+    }
+}
+{
+    "wallTime": 92,
+    "cpuTime": 2,
+    "truncated": false,
+    "executionModel": "stateless",
+    "outcome": "ok",
+    "scriptVersion": {
+        "id": "fc57f762-e414-48a3-b67c-41fa66ab5a65"
+    },
+    "scriptName": "canadianstartupjobs-api",
+    "diagnosticsChannelEvents": [],
+    "exceptions": [],
+    "logs": [],
+    "eventTimestamp": 1775281223617,
+    "event": {
+        "request": {
+            "url": "https://canadianstartupjobs-api.matteo-beatstanzi.workers.dev/organizations/1",
+            "method": "GET",
+            "headers": {
+                "accept-encoding": "gzip, br",
+                "cf-connecting-ip": "198.98.118.218",
+                "cf-ipcountry": "CA",
+                "cf-ray": "9e6dfa5f9ae8c48a",
+                "cf-visitor": "{\"scheme\":\"https\"}",
+                "connection": "Keep-Alive",
+                "host": "canadianstartupjobs-api.matteo-beatstanzi.workers.dev",
+                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-CA) PowerShell/7.6.0",
+                "x-forwarded-proto": "https",
+                "x-real-ip": "198.98.118.218"
+            },
+            "cf": {
+                "httpProtocol": "HTTP/1.1",
+                "clientAcceptEncoding": "gzip, deflate, br",
+                "requestPriority": "",
+                "edgeRequestKeepAliveStatus": 1,
+                "requestHeaderNames": {},
+                "clientTcpRtt": 3,
+                "clientQuicRtt": 0,
+                "colo": "YYZ",
+                "asn": 21949,
+                "asOrganization": "Beanfield",
+                "country": "CA",
+                "isEUCountry": false,
+                "city": "Toronto",
+                "continent": "NA",
+                "region": "Ontario",
+                "regionCode": "ON",
+                "timezone": "America/Toronto",
+                "longitude": "-79.39864",
+                "latitude": "43.70643",
+                "postalCode": "M5A",
+                "tlsVersion": "TLSv1.3",
+                "tlsCipher": "AEAD-AES256-GCM-SHA384",
+                "tlsClientRandom": "fLT6M+ppTgSm2UucmkPgeiCVS29hv+N//WEoJdQsA1E=",
+                "tlsClientCiphersSha1": "kTkJ+HAwBvIuoPFncb1wEDLcgfg=",
+                "tlsClientExtensionsSha1": "Bxwn0Bs0z+5dY69ZcqleTRGmlpE=",
+                "tlsClientExtensionsSha1Le": "sb2ftGg4/laBHA9Q/MJ4X/0+cJY=",
+                "tlsExportedAuthenticator": {
+                    "clientHandshake": "cbbe2105926cca313e760bee51b713a79cd144b04989f3661fae80c17b7bb935cb1c5064a34fc920f98f8b81a9205646",
+                    "serverHandshake": "b6337141f41af2522486cb4664309aec0ed8d3cccb79849814cc9cd737e1a9b4c83c4947eb2e677390d9504399ec5d1b",
+                    "clientFinished": "df4fae8d831344918423f3a3b5e1f77ca8a8e1ec051b5d8a4b3c2799b91808fc6ec663b570a8d9f73edab01a5ac54bce",
+                    "serverFinished": "e0b8697de7f5ed859504e7354853ee38cac665d0f0ae8d6d57bf60a74571a462a9bd87aa607e746f801e95df6e8a82f8"
+                },
+                "tlsClientHelloLength": "471",
+                "tlsClientAuth": {
+                    "certPresented": "0",
+                    "certVerified": "NONE",
+                    "certRevoked": "0",
+                    "certIssuerDN": "",
+                    "certSubjectDN": "",
+                    "certIssuerDNRFC2253": "",
+                    "certSubjectDNRFC2253": "",
+                    "certIssuerDNLegacy": "",
+                    "certSubjectDNLegacy": "",
+                    "certSerial": "",
+                    "certIssuerSerial": "",
+                    "certSKI": "",
+                    "certIssuerSKI": "",
+                    "certFingerprintSHA1": "",
+                    "certFingerprintSHA256": "",
+                    "certNotBefore": "",
+                    "certNotAfter": "",
+                    "certRFC9440": "",
+                    "certRFC9440TooLarge": false,
+                    "certChainRFC9440": "",
+                    "certChainRFC9440TooLarge": false
+                },
+                "verifiedBotCategory": "",
+                "edgeL4": {
+                    "deliveryRate": 626609
+                }
+            }
+        },
+        "response": {
+            "status": 404
+        }
+    }
+}

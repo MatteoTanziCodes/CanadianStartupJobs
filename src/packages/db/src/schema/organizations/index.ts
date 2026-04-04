@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { sqliteTable, text } from "drizzle-orm/sqlite-core";
 import {
   orgsSizes,
   orgsStages,
@@ -7,9 +7,10 @@ import {
   orgsJobs,
   orgsJobBoardCaches,
 } from "./pivots";
+import { idColumn, timestampColumn, timestampNowColumn } from "../helpers";
 
-const organizations = pgTable("organizations", {
-  id: serial("id").primaryKey(),
+const organizations = sqliteTable("organizations", {
+  id: idColumn(),
   name: text("name").notNull(),
   city: text("city").notNull(),
   province: text("province").notNull(),
@@ -17,17 +18,17 @@ const organizations = pgTable("organizations", {
   website: text("website"),
   careersPage: text("careers_page"),
   industry: text("industry"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestampNowColumn("created_at"),
+  updatedAt: timestampNowColumn("updated_at"),
 });
 
-const jobBoardCaches = pgTable("job_board_caches", {
-  id: serial("id").primaryKey(),
+const jobBoardCaches = sqliteTable("job_board_caches", {
+  id: idColumn(),
   url: text("url").notNull(),
-  freshTil: timestamp("fresh_til"),
+  freshTil: timestampColumn("fresh_til"),
   lastHash: text("last_hash"),
-  lastScrapedAt: timestamp("last_scraped_at").defaultNow().notNull(),
-  lastCheckedAt: timestamp("last_checked_at").defaultNow().notNull(),
+  lastScrapedAt: timestampNowColumn("last_scraped_at"),
+  lastCheckedAt: timestampNowColumn("last_checked_at"),
 });
 
 

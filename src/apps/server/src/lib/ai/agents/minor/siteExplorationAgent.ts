@@ -1,5 +1,5 @@
 import { generateText } from "ai";
-import { google } from "@ai-sdk/google";
+import { claudeMain } from "@/lib/ai/models";
 import { prompts } from '@/lib/ai/prompts';
 import { readPage, searchSite } from "@/lib/ai/tools";
 import { observePrepareSteps } from "@/lib/ai/observability";
@@ -35,7 +35,7 @@ export const getPrimaryData = async (input: SiteExplorationInput) => {
   }
 
   return await generateText({
-    model: google('gemini-2.5-pro'),
+    model: claudeMain(),
     prompt,
     tools: {
       readPage,

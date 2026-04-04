@@ -1,5 +1,5 @@
 import { eq, asc, sql } from "drizzle-orm";
-import { db, queues, schemas } from "@canadian-startup-jobs/db";
+import { db, queues, schemas } from "@/lib/db/runtime";
 import { z } from "zod";
 import { AppError, ERROR_CODES } from "@/lib/errors";
 

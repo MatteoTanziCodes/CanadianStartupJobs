@@ -1,13 +1,13 @@
 import { AppError, ERROR_CODES } from "@/lib/errors";
 import { generateObject, generateText } from "ai";
-import { google } from "@ai-sdk/google";
-import { db, schemas, jobs, orgsJobs, jobCaches, jobsJobsCaches } from "@canadian-startup-jobs/db";
+import { db, schemas, jobs, orgsJobs, jobCaches, jobsJobsCaches } from "@/lib/db/runtime";
+import { claudeMain } from "@/lib/ai/models";
 import { prompts } from '@/lib/ai/prompts';
 import { readPage, searchSite, jobTools } from '@/lib/ai/tools';
 import { observePrepareSteps } from '@/lib/ai/observability';
 import { utils } from '@/lib/firecrawl';
 import { jobTaggingAgent } from '@/lib/ai/agents/minor/jobTaggingAgent';
-import { SHA256 } from 'bun';
+import { sha256Hex } from "@/lib/hash";
 import { z } from 'zod';
 import type { AgentHelpers, AgentResult } from "../helpers/types";
 import type { QueuedItem } from "@/lib/db/functions/queues";
@@ -51,7 +51,7 @@ type JobAgentPayloadArgs = z.infer<typeof jobAgentPayloadSchema>;
 
 const getPrimaryData = async (markdown: string, links: string[], url: string) => {
   return await generateText({
-    model: google('gemini-2.5-pro'),
+    model: claudeMain(),
     prompt: prompts.discoverNewJob(markdown, links, url),
     tools: {
       readPage,
@@ -63,7 +63,7 @@ const getPrimaryData = async (markdown: string, links: string[], url: string) =>
 
 const getObjectData = async (url: string, primaryData: any, companyName: string, usage: unknown[]) => {
   const objectData = await generateObject({
-    model: google('gemini-2.5-pro'),
+    model: claudeMain(),
     schema: schemas.jobs.insert.omit({
       id: true,
       createdAt: true,
@@ -113,14 +113,12 @@ const connectJobToOrganization = async (organizationId: number, jobId: number) =
 };
 
 const createJobCache = async (url: string, markdown: string) => {
-  const hasher = new SHA256();
-  const encoder = new TextEncoder();
-  const hash = hasher.digest(encoder.encode(markdown));
+  const hash = await sha256Hex(markdown);
   const now = Date.now();
   const args = schemas.jobCaches.insert.safeParse({
     url,
     freshTil: now + (7 * 24 * 60 * 60 * 1000),
-    lastHash: hash.toString(),
+    lastHash: hash,
   });
   if (args.error) throw new AppError(ERROR_CODES.SCHEMA_PARSE_FAILED, "Failed to parse job cache arguments", { ...args.error });
   const newCache = await db.insert(jobCaches).values(args.data).returning();

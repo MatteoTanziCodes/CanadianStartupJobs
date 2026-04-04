@@ -1,21 +1,19 @@
 import {
-  pgTable,
-  serial,
+  sqliteTable,
   text,
-  timestamp,
   integer,
-  jsonb,
-} from "drizzle-orm/pg-core";
+} from "drizzle-orm/sqlite-core";
+import { idColumn, timestampNowColumn } from "../helpers";
 
-const queues = pgTable("llm-queues", {
-  id: serial("id").primaryKey(),
-  payload: jsonb().notNull(),
+const queues = sqliteTable("llm-queues", {
+  id: idColumn(),
+  payload: text("payload", { mode: "json" }).notNull(),
   agent: text().notNull(),
   status: text().notNull(),
   retryCount: integer("retry_count").default(0).notNull(),
   maxRetries: integer("max_retries").default(3).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestampNowColumn("created_at"),
+  updatedAt: timestampNowColumn("updated_at"),
 });
 
 export { queues };

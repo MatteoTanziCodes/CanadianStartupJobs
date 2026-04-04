@@ -15,7 +15,7 @@ The server serves two main purposes:
 - **Queue-Based Processing**: Background worker processes tasks asynchronously
 - **Database Integration**: Seamless PostgreSQL integration via Drizzle ORM
 - **Error Handling**: Structured error codes and logging
-- **Firecrawl Integration**: Web scraping for structured content extraction
+- **Crawl4AI Integration**: Local web crawling for markdown and link extraction
 - **Tagging System**: Automatic categorization of jobs by experience level, industry, role, and more
 
 ## Technology Stack
@@ -24,7 +24,7 @@ The server serves two main purposes:
 - **Framework**: Hono
 - **Database**: PostgreSQL with Drizzle ORM
 - **AI**: Google AI Studio (Gemini 2.5 Pro), AI SDK
-- **Scraping**: Firecrawl
+- **Scraping**: Crawl4AI
 - **Queue**: Custom database-backed queue system
 - **Validation**: Zod
 - **Language**: TypeScript
@@ -50,7 +50,7 @@ src/
 │   │   │   ├── major/          # Complex, multi-step agents
 │   │   │   └── minor/          # Focused, single-task agents
 │   │   ├── prompts/            # AI prompts for agents
-│   │   ├── tools/              # AI tools (DB operations, Firecrawl)
+│   │   ├── tools/              # AI tools (DB operations, crawling)
 │   │   ├── functions/          # Reusable AI functions
 │   │   ├── observability.ts    # Logging and monitoring
 │   │   └── index.ts
@@ -64,7 +64,7 @@ src/
 │   │   │   ├── calls/          # Agent call tracking
 │   │   │   └── pivots/         # Many-to-many operations
 │   │   └── generators/         # Code generation scripts
-│   ├── firecrawl/              # Firecrawl integration
+│   ├── firecrawl/              # Crawl4AI-backed crawling wrapper
 │   │   ├── client.ts           # Client configuration
 │   │   ├── config.ts           # API key management
 │   │   └── functions/          # Scraping utilities
@@ -311,17 +311,19 @@ bun run src/scripts/<script-name>.ts
 Required environment variables:
 
 ```bash
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5433/canadian_startup_db
+# Cloudflare D1 access for local scripts / workers
+CLOUDFLARE_ACCOUNT_ID=xxxxx
+CLOUDFLARE_API_TOKEN=xxxxx
+CLOUDFLARE_D1_DATABASE_ID=6528375b-dec8-4b6b-a1dc-ce3cdcf4b120
 
-# Redis (for queue system)
-REDIS_URL=redis://localhost:6379
+# Crawl4AI bridge uses local Python + Playwright
+# Optional if "python" is not the right binary on your machine
+CRAWL4AI_PYTHON_BIN=python
 
-# Firecrawl API
-FIRECRAWL_API_KEY=fc-xxxxx
-
-# Google AI Studio (for LLM)
-GOOGLE_GENERATIVE_AI_API_KEY=xxxxx
+# Anthropic (for Claude)
+ANTHROPIC_API_KEY=xxxxx
+ANTHROPIC_FAST_MODEL=claude-3-haiku-20240307
+ANTHROPIC_MAIN_MODEL=claude-sonnet-4-20250514
 
 # CORS origins (optional, default: localhost:3000, localhost:3001)
 CORS_ORIGINS=http://localhost:3000,http://localhost:3001
@@ -400,7 +402,7 @@ API errors return structured responses:
 
 The agent system provides specialized AI tools:
 
-### Firecrawl Tools
+### Crawling Tools
 - `readPage`: Fetch markdown and links from a URL
 - `searchSite`: Search a website for specific content
 

@@ -42,7 +42,7 @@ The agent uses `generateObject` with Gemini 2.5 Flash to extract structured data
 
 ```typescript
 const objectData = await generateObject({
-  model: google('gemini-2.5-flash'),
+  model: claudeFast(),
   schema: schemas.sources.insert.omit({ id, createdAt, updatedAt }),
   prompt: prompts.getNewSource(markdown, url, portfolio),
 });
@@ -113,9 +113,9 @@ The agent returns an `AgentResult` with the following structure:
 
 ## Dependencies
 
-- **Firecrawl** (`@mendable/firecrawl-js`) - Web scraping for markdown and links
+- **Crawl4AI bridge** - Local crawling for markdown and link extraction
 - **AI SDK** (`ai`) - LLM integration with `generateObject`
-- **AI SDK Google** (`@ai-sdk/google`) - Gemini 2.5 Flash model
+- **AI SDK Anthropic** (`@ai-sdk/anthropic`) - Claude model provider
 - **Drizzle ORM** - Database operations
 - **Bun** (`SHA256`) - Hashing for portfolio cache
 - **Zod** - Payload schema validation

@@ -125,7 +125,6 @@ src/
 │   └── filters/
 │       └── index.tsx           # FiltersContext provider
 ├── data/                      # Data layer
-│   ├── jobs.json               # Mock data
 │   └── api/
 │       ├── jobs/
 │       │   └── index.ts        # Jobs API client
@@ -133,7 +132,6 @@ src/
 │           └── index.ts        # Tags API client
 ├── lib/                       # Utilities and helpers
 │   ├── api.ts                  # Generic API client
-│   ├── mockdata.ts             # Mock data generation
 │   └── utils.ts               # Utility functions
 ├── utils/                     # Utility modules
 │   ├── config.ts               # Configuration (API URLs)

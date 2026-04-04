@@ -5,10 +5,12 @@ import {
   get_jobTypes,
 } from "@/lib/db/functions/tags/jobTypes";
 import { Hono } from "hono";
+import type { AppEnv } from "@/types/app";
 
-const app = new Hono();
+const app = new Hono<AppEnv>();
 
 app.get("/", async (c) => {
+  const db = c.get("db");
   const { skip, take, order } = c.req.query();
 
   const skipInt = skip ? parseInt(skip) : undefined;
@@ -16,6 +18,7 @@ app.get("/", async (c) => {
   const orderType = order === "asc" || order === "desc" ? order : undefined;
 
   const default_jobTypes = await get_jobTypes(
+    db,
     skipInt,
     takeInt,
     orderType,
@@ -24,8 +27,9 @@ app.get("/", async (c) => {
 });
 
 app.post("/", async (c) => {
+  const db = c.get("db");
   const body = await c.req.json();
-  const success = await create_jobTypes(body);
+  const success = await create_jobTypes(db, body);
   if (!success) {
     return c.json({ error: "Failed to create jobTypes" }, 500);
   }
@@ -33,8 +37,9 @@ app.post("/", async (c) => {
 });
 
 app.delete("/", async (c) => {
+  const db = c.get("db");
   const body = await c.req.json();
-  const success = await delete_jobTypes(body);
+  const success = await delete_jobTypes(db, body);
   if (!success) {
     return c.json({ error: "Failed to delete jobTypes" }, 500);
   }
@@ -42,9 +47,10 @@ app.delete("/", async (c) => {
 });
 
 app.put("/", async (c) => {
+  const db = c.get("db");
   const body = await c.req.json();
   const { select, insert } = body;
-  const success = await update_jobTypes(select, insert);
+  const success = await update_jobTypes(db, select, insert);
   if (!success) {
     return c.json({ error: "Failed to update jobTypes" }, 500);
   }

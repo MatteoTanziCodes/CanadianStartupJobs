@@ -1,9 +1,9 @@
-import { pgTable, integer, primaryKey } from "drizzle-orm/pg-core";
+import { sqliteTable, integer, primaryKey } from "drizzle-orm/sqlite-core";
 import { jobs } from "../jobs/index";
 import { organizations, jobBoardCaches } from "./index";
 import { provinces, industries, teamSize, raisingStage } from "../tags/index";
 
-const orgsProvinces = pgTable(
+const orgsProvinces = sqliteTable(
   "orgs_provinces",
   {
     orgId: integer("org_id")
@@ -20,7 +20,7 @@ const orgsProvinces = pgTable(
   ],
 );
 
-const orgsIndustries = pgTable(
+const orgsIndustries = sqliteTable(
   "orgs_industries",
   {
     orgId: integer("org_id")
@@ -37,7 +37,7 @@ const orgsIndustries = pgTable(
   ],
 );
 
-const orgsSizes = pgTable(
+const orgsSizes = sqliteTable(
   "orgs_sizes",
   {
     orgId: integer("org_id")
@@ -54,7 +54,7 @@ const orgsSizes = pgTable(
   ],
 );
 
-const orgsStages = pgTable(
+const orgsStages = sqliteTable(
   "orgs_stages",
   {
     orgId: integer("org_id")
@@ -71,7 +71,7 @@ const orgsStages = pgTable(
   ],
 );
 
-const orgsJobs = pgTable(
+const orgsJobs = sqliteTable(
   "orgs_jobs",
   {
     orgId: integer("org_id")
@@ -88,7 +88,7 @@ const orgsJobs = pgTable(
   ],
 );
 
-const orgsJobBoardCaches = pgTable(
+const orgsJobBoardCaches = sqliteTable(
   "orgs_job_board_caches",
   {
     orgId: integer("org_id")

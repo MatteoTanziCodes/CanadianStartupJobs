@@ -40,54 +40,67 @@ import {
   get_roles,
   update_roles,
 } from "./roles";
+import { db, isDatabase, type Database } from "@/lib/db/runtime";
+
+const withDefaultDb = <TArgs extends unknown[], TResult>(
+  handler: (database: Database, ...args: TArgs) => TResult,
+) => {
+  return (...args: [Database, ...TArgs] | TArgs): TResult => {
+    if (isDatabase(args[0])) {
+      const [database, ...rest] = args as [Database, ...TArgs];
+      return handler(database, ...rest);
+    }
+    return handler(db, ...(args as TArgs));
+  };
+};
 
 const industries = {
-  create: create_industries,
-  read: get_industries,
-  update: update_industries,
-  delete: delete_industries,
+  create: withDefaultDb(create_industries),
+  read: withDefaultDb(get_industries),
+  update: withDefaultDb(update_industries),
+  delete: withDefaultDb(delete_industries),
 };
 
 const provinces = {
-  create: create_provinces,
-  read: get_provinces,
-  update: update_provinces,
-  delete: delete_provinces,
+  create: withDefaultDb(create_provinces),
+  read: withDefaultDb(get_provinces),
+  update: withDefaultDb(update_provinces),
+  delete: withDefaultDb(delete_provinces),
 };
 
 const raisingStage = {
-  create: create_raisingStage,
-  read: get_raisingStage,
-  update: update_raisingStage,
-  delete: delete_raisingStage,
+  create: withDefaultDb(create_raisingStage),
+  read: withDefaultDb(get_raisingStage),
+  update: withDefaultDb(update_raisingStage),
+  delete: withDefaultDb(delete_raisingStage),
 };
 
 const teamSize = {
-  create: create_teamSize,
-  read: get_teamSize,
-  update: update_teamSize,
-  delete: delete_teamSize,
+  create: withDefaultDb(create_teamSize),
+  read: withDefaultDb(get_teamSize),
+  update: withDefaultDb(update_teamSize),
+  delete: withDefaultDb(delete_teamSize),
 };
 
 const experienceLevels = {
-  create: create_experienceLevels,
-  read: get_experienceLevels,
-  update: update_experienceLevels,
-  delete: delete_experienceLevels,
+  create: withDefaultDb(create_experienceLevels),
+  read: withDefaultDb(get_experienceLevels),
+  update: withDefaultDb(update_experienceLevels),
+  delete: withDefaultDb(delete_experienceLevels),
 };
 
 const jobTypes = {
-  create: create_jobTypes,
-  read: get_jobTypes,
-  update: update_jobTypes,
-  delete: delete_jobTypes,
+  create: withDefaultDb(create_jobTypes),
+  read: withDefaultDb(get_jobTypes),
+  update: withDefaultDb(update_jobTypes),
+  delete: withDefaultDb(delete_jobTypes),
 };
 
 const roles = {
-  create: create_roles,
-  read: get_roles,
-  update: update_roles,
-  delete: delete_roles,
+  create: withDefaultDb(create_roles),
+  read: withDefaultDb(get_roles),
+  update: withDefaultDb(update_roles),
+  delete: withDefaultDb(delete_roles),
 };
 
 export { industries, provinces, raisingStage, teamSize, experienceLevels, jobTypes, roles };

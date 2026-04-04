@@ -3654,7 +3654,7 @@
       "format": "cjs"
     },
     ".open-next/server-functions/default/node_modules/next/dist/server/load-manifest.external.js": {
-      "bytes": 23604,
+      "bytes": 23996,
       "imports": [
         {
           "path": "path",
@@ -3831,7 +3831,7 @@
       "format": "cjs"
     },
     ".open-next/server-functions/default/.next/server/app/jobs/[id]/page.js": {
-      "bytes": 1002,
+      "bytes": 963,
       "imports": [
         {
           "path": ".open-next/server-functions/default/.next/server/chunks/ssr/[turbopack]_runtime.js",
@@ -5486,7 +5486,7 @@
       "format": "esm"
     },
     ".open-next/server-functions/default/index.mjs": {
-      "bytes": 84474,
+      "bytes": 84794,
       "imports": [
         {
           "path": "node:module",
@@ -6706,7 +6706,7 @@
           "bytesInOutput": 16317
         },
         ".open-next/server-functions/default/node_modules/next/dist/server/load-manifest.external.js": {
-          "bytesInOutput": 15751
+          "bytesInOutput": 16047
         },
         ".open-next/server-functions/default/.next/server/chunks/ssr/[turbopack]_runtime.js": {
           "bytesInOutput": 17263
@@ -6727,7 +6727,7 @@
           "bytesInOutput": 449
         },
         ".open-next/server-functions/default/.next/server/app/jobs/[id]/page.js": {
-          "bytesInOutput": 1111
+          "bytesInOutput": 1072
         },
         ".open-next/server-functions/default/.next/server/app/page.js": {
           "bytesInOutput": 1042
@@ -6940,10 +6940,10 @@
           "bytesInOutput": 5072
         },
         ".open-next/server-functions/default/index.mjs": {
-          "bytesInOutput": 58676
+          "bytesInOutput": 58972
         }
       },
-      "bytes": 2056671
+      "bytes": 2057224
     }
   }
 }

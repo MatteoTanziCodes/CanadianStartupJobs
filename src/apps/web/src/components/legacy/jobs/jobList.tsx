@@ -9,7 +9,7 @@ import { useJobsContext } from "@/contexts/jobs";
  * JobList (loading placeholder)
  * Roadmap:
  * - Add filter bar (keyword, province, remote, type) per codex.prompt.md
- * - Replace skeleton cards with <JobCard /> rendering real data from /src/data/jobs.json via lib/api
+ * - Replace skeleton cards with <JobCard /> rendering real data from the backend jobs API
  * - Implement pagination or infinite scroll (configurable)
  * - Add source badge (local / scraper) + Verified 🇨🇦 indicator
  */
