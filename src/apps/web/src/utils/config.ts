@@ -1,5 +1,6 @@
-const LOCAL_API_BASE_URL = "http://localhost:3050";
-const PRODUCTION_API_BASE_URL = "https://canadianstartupjobs-api.matteo-beatstanzi.workers.dev";
+const API_BASE_PATH = "/api/v1";
+const LOCAL_SITE_BASE_URL = "http://localhost:3000";
+const PRODUCTION_SITE_BASE_URL = "https://canadianstartupjobs.matteo-tanzi.dev";
 
 const normalizeUrl = (value?: string | null) => {
   const trimmed = value?.trim();
@@ -10,24 +11,23 @@ const normalizeUrl = (value?: string | null) => {
   return trimmed.replace(/\/+$/, "");
 };
 
-const getApiBaseUrl = () => {
-  const configuredApiBaseUrl = normalizeUrl(process.env.NEXT_PUBLIC_API_URL);
-  if (configuredApiBaseUrl) {
-    return configuredApiBaseUrl;
+const getSiteBaseUrl = () => {
+  const configuredBaseUrl = normalizeUrl(process.env.NEXT_PUBLIC_BASE_URL);
+  if (configuredBaseUrl) {
+    return configuredBaseUrl;
   }
 
   if (typeof window !== "undefined") {
-    const { hostname } = window.location;
-    if (hostname === "localhost" || hostname === "127.0.0.1") {
-      return LOCAL_API_BASE_URL;
-    }
+    return normalizeUrl(window.location.origin) ?? PRODUCTION_SITE_BASE_URL;
   }
 
-  return PRODUCTION_API_BASE_URL;
+  return process.env.NODE_ENV === "development"
+    ? LOCAL_SITE_BASE_URL
+    : PRODUCTION_SITE_BASE_URL;
 };
 
 export const config = {
   get apiBaseUrl() {
-    return getApiBaseUrl();
+    return `${getSiteBaseUrl()}${API_BASE_PATH}`;
   },
 };

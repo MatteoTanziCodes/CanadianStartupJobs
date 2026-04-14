@@ -48,20 +48,27 @@ export default {
   scheduled: async (_event: ScheduledEvent, env: AppEnv["Bindings"]) => {
     const runtimeDb = createDb(env.DB);
 
-    await withRuntimeContext(
-      {
-        db: runtimeDb,
-        env: {
-          ANTHROPIC_API_KEY: env.ANTHROPIC_API_KEY,
-          ANTHROPIC_FAST_MODEL: env.ANTHROPIC_FAST_MODEL,
-          ANTHROPIC_MAIN_MODEL: env.ANTHROPIC_MAIN_MODEL,
+    try {
+      const batch = await withRuntimeContext(
+        {
+          db: runtimeDb,
+          env: {
+            ANTHROPIC_API_KEY: env.ANTHROPIC_API_KEY,
+            ANTHROPIC_FAST_MODEL: env.ANTHROPIC_FAST_MODEL,
+            ANTHROPIC_MAIN_MODEL: env.ANTHROPIC_MAIN_MODEL,
+          },
         },
-      },
-      async () => {
-        await seedDefaultOrganizations();
-        await seedDefaultSources();
-        await processQueueBatch({ maxItems: 80, maxDurationMs: 55_000, maxHeavyItems: 6 });
-      },
-    );
+        async () => {
+          await seedDefaultOrganizations();
+          await seedDefaultSources();
+          return processQueueBatch({ maxItems: 80, maxDurationMs: 55_000, maxHeavyItems: 6 });
+        },
+      );
+
+      console.log("Scheduled pipeline batch completed.", batch);
+    } catch (error) {
+      console.error("Scheduled pipeline batch failed.", error);
+      throw error;
+    }
   },
 };

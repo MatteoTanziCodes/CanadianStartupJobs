@@ -13,5 +13,22 @@ const getAnthropicProvider = () => {
 const getFastModelId = () => getRuntimeEnv("ANTHROPIC_FAST_MODEL") ?? "claude-haiku-4-5-20251001";
 const getMainModelId = () => getRuntimeEnv("ANTHROPIC_MAIN_MODEL") ?? "claude-sonnet-4-6";
 
-export const claudeFast = () => getAnthropicProvider()(getFastModelId());
-export const claudeMain = () => getAnthropicProvider()(getMainModelId());
+const createLazyModel = (resolveModelId: () => string) =>
+  new Proxy(
+    {},
+    {
+      get(_target, prop, receiver) {
+        const model = getAnthropicProvider()(resolveModelId()) as Record<PropertyKey, unknown>;
+        const value = Reflect.get(model, prop, receiver);
+
+        if (typeof value === "function") {
+          return value.bind(model);
+        }
+
+        return value;
+      },
+    },
+  );
+
+export const claudeFast = () => createLazyModel(getFastModelId);
+export const claudeMain = () => createLazyModel(getMainModelId);

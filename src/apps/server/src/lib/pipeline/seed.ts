@@ -13,6 +13,31 @@ const SOURCE_SEED_BATCH_SIZE = 6;
 const QUALIFIED_JOBBOARD_BACKFILL_BATCH_SIZE = 20;
 const MAX_QUEUE_BACKLOG_BEFORE_SEEDING = 150;
 
+const createSeededOrganization = async (seed: { name: string; website: string }) => {
+  const normalizedWebsite = normalizeHttpUrl(seed.website) || seed.website;
+  const canonicalDomain = getCanonicalDomain(seed.website);
+  const now = new Date();
+
+  const [created] = await db
+    .insert(organizations)
+    .values({
+      name: seed.name,
+      city: "Unknown",
+      province: "Unknown",
+      description: "Seeded organization awaiting qualification and careers discovery.",
+      website: normalizedWebsite,
+      canonicalDomain: canonicalDomain || undefined,
+      lastSeenAt: now,
+    })
+    .returning();
+
+  if (!created) {
+    throw new Error(`Failed to create seeded organization ${seed.name}`);
+  }
+
+  return created;
+};
+
 const getQueuedOrganizationUrls = (items: Array<{
   agent: string;
   status: string;
@@ -144,39 +169,18 @@ export const seedDefaultOrganizations = async (options: SeedOptions = {}) => {
       organizationIndex.get(normalizedWebsite) ??
       organizationIndex.get(canonicalDomain);
 
-    if (!existingOrganization) {
-      if (!options.force && queuedOrganizationUrls.has(normalizedWebsite)) {
-        continue;
-      }
-
-      const queuedItem = await addToQueue({
-        payload: {
-          url: normalizedWebsite || seed.website,
-        },
-        agent: "organizationAgent",
-        maxRetries: 3,
-      });
-
-      queued.push({
-        id: queuedItem.id,
-        organization: seed.name,
-        action: "organizationAgent",
-      });
-      queuedOrganizationUrls.add(normalizedWebsite);
-      continue;
-    }
-
-    const organizationUrl = normalizeHttpUrl(existingOrganization.website ?? seed.website) || seed.website;
+    const seededOrganization = existingOrganization ?? await createSeededOrganization(seed);
+    const organizationUrl = normalizeHttpUrl(seededOrganization.website ?? seed.website) || seed.website;
     if (
-      existingOrganization.qualificationStatus !== "qualified" &&
+      seededOrganization.qualificationStatus !== "qualified" &&
       (options.force || !queuedOrganizationUrls.has(organizationUrl))
     ) {
       const queuedItem = await addToQueue({
         payload: {
-          organizationId: existingOrganization.id,
-          name: existingOrganization.name,
+          organizationId: seededOrganization.id,
+          name: seededOrganization.name,
           url: organizationUrl,
-          careersPage: existingOrganization.careersPage ?? undefined,
+          careersPage: seededOrganization.careersPage ?? undefined,
         },
         agent: "qualificationAgent",
         maxRetries: 3,
@@ -184,7 +188,7 @@ export const seedDefaultOrganizations = async (options: SeedOptions = {}) => {
 
       queued.push({
         id: queuedItem.id,
-        organization: existingOrganization.name,
+        organization: seededOrganization.name,
         action: "qualificationAgent",
       });
       queuedOrganizationUrls.add(organizationUrl);

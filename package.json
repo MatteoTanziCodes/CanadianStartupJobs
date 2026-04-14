@@ -9,9 +9,9 @@
   "scripts": {
     "deploy:web": "cd src/apps/web && npm ci --workspaces=false && npm run deploy",
     "deploy:web:preview": "cd src/apps/web && npm ci --workspaces=false && npm run deploy",
-    "deploy:server": "cd src/apps/server && npm ci --workspaces=false && npm run deploy",
-    "deploy:server:preview": "cd src/apps/server && npm ci --workspaces=false && npm run preview",
-    "db:migrate:server:local": "cd src/apps/server && npm ci --workspaces=false && npm run db:migrate:local",
-    "db:migrate:server:remote": "cd src/apps/server && npm ci --workspaces=false && npm run db:migrate:remote"
+    "deploy:server": "npm run deploy:web",
+    "deploy:server:preview": "npm run deploy:web:preview",
+    "db:migrate:server:local": "cd src/apps/web && npm ci --workspaces=false && npm run db:migrate:local",
+    "db:migrate:server:remote": "cd src/apps/web && npm ci --workspaces=false && npm run db:migrate:remote"
   }
 }
