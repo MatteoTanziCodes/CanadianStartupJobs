@@ -4,10 +4,10 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-04-04",
   "compatibility_flags": ["nodejs_compat"],
-  "workers_dev": true,
+  "workers_dev": false,
   "preview_urls": true,
   "vars": {
-    "ALLOWED_ORIGINS": "https://canadianstartupjobs.matteo-beatstanzi.workers.dev,http://localhost:3000,http://localhost:3001",
+    "ALLOWED_ORIGINS": "https://canadianstartupjobs.matteo-tanzi.dev,http://localhost:3000,http://localhost:3001",
     "ANTHROPIC_FAST_MODEL": "claude-haiku-4-5-20251001",
     "ANTHROPIC_MAIN_MODEL": "claude-sonnet-4-6"
   },
@@ -24,5 +24,11 @@
   ],
   "observability": {
     "enabled": true
-  }
+  },
+  "routes": [
+    {
+      "pattern": "canadianstartupjobs-api.matteo-tanzi.dev",
+      "custom_domain": true
+    }
+  ]
 }

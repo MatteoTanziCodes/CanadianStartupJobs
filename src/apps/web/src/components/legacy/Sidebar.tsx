@@ -63,8 +63,8 @@ function Sidebar({ pageTitle }: { pageTitle: string }) {
         isOpen={isFAQModalOpen}
         onClose={() => setIsFAQModalOpen(false)}
       />
-      <div className="mb-4 shrink-0">
-        <Header className="rounded-2xl border border-black/10 shadow-sm" />
+      <div className="mb-5 shrink-0">
+        <Header variant="sidebar" className="rounded-2xl border border-black/10 shadow-sm" />
       </div>
       <div ref={listViewportRef} className="flex-1 min-h-0 overflow-hidden">
         <JobList maxHeight={listMaxHeight} />

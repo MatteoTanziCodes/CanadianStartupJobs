@@ -258,7 +258,7 @@ export const processQueueBatch = async (args: {
         break;
       }
     } catch (err) {
-      if (err instanceof AppError && err.code === ERROR_CODES.DB_QUERY_FAILED) {
+      if (err instanceof AppError && err.code === ERROR_CODES.NO_REMAINING_TASKS) {
         break;
       }
 

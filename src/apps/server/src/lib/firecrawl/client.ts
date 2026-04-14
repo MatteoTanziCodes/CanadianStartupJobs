@@ -124,7 +124,7 @@ const extractLinksFromHtml = (html: string, baseUrl: string) => {
 const fetchHtml = async (url: string) => {
   const response = await fetch(url, {
     headers: {
-      "user-agent": "CanadianStartupJobsBot/1.0 (+https://canadianstartupjobs.matteo-beatstanzi.workers.dev)",
+      "user-agent": "CanadianStartupJobsBot/1.0 (+https://canadianstartupjobs.matteo-tanzi.dev)",
       "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     },
   });

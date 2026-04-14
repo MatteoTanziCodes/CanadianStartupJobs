@@ -30,7 +30,7 @@ const getNextQueuedItem = async () => {
     prioritySql,
     asc(queues.createdAt),
   ).limit(1);
-  if (!response[0]) throw new AppError(ERROR_CODES.DB_QUERY_FAILED, "No remaining tasks");
+  if (!response[0]) throw new AppError(ERROR_CODES.NO_REMAINING_TASKS, "No remaining tasks");
   return response[0];
 };
 

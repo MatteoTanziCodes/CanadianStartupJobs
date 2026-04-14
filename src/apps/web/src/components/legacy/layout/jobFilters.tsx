@@ -22,11 +22,13 @@ const INITIAL_STATE: DropdownFilters = {
 
 type JobFiltersProps = {
   onChange?: (filters: DropdownFilters) => void;
+  variant?: "default" | "sidebar";
 };
 
-export default function JobFilters({ onChange }: JobFiltersProps) {
+export default function JobFilters({ onChange, variant = "default" }: JobFiltersProps) {
   const { filters, setFilters } = useJobsContext();
   const [openKey, setOpenKey] = useState<keyof FilterState | null>(null);
+  const isSidebar = variant === "sidebar";
 
   useEffect(() => {
     onChange?.(filters);
@@ -66,7 +68,7 @@ export default function JobFilters({ onChange }: JobFiltersProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form onSubmit={handleSubmit} className={`space-y-${isSidebar ? "4" : "3"}`}>
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-600">
           Filters
@@ -74,13 +76,14 @@ export default function JobFilters({ onChange }: JobFiltersProps) {
         <span className="text-xs text-neutral-500">{activeCount} active</span>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className={isSidebar ? "grid gap-2.5" : "grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"}>
         {FILTER_DROPDOWN_CONFIG.map((config) => (
           <DropdownField
             key={config.key}
             config={config}
             value={filters[config.key]}
             isOpen={openKey === config.key}
+            compact={isSidebar}
             onToggle={() =>
               setOpenKey((prev) => (prev === config.key ? null : config.key))
             }
@@ -89,10 +92,12 @@ export default function JobFilters({ onChange }: JobFiltersProps) {
         ))}
       </div>
 
-      <div className="flex flex-wrap gap-3">
+      <div className={`flex gap-3 ${isSidebar ? "flex-nowrap" : "flex-wrap"}`}>
         <button
           type="submit"
-          className="flex-1 rounded-full px-4 py-2 text-sm font-medium text-white shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-1"
+          className={`flex-1 rounded-full text-sm font-medium text-white shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
+            isSidebar ? "px-4 py-2.5" : "px-4 py-2"
+          }`}
           style={{ backgroundColor: COLOURS.primary }}
         >
           Apply
@@ -100,7 +105,9 @@ export default function JobFilters({ onChange }: JobFiltersProps) {
         <button
           type="button"
           onClick={handleReset}
-          className="flex-1 rounded-full border border-black/10 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100"
+          className={`flex-1 rounded-full border border-black/10 text-sm font-medium text-neutral-700 hover:bg-neutral-100 ${
+            isSidebar ? "px-4 py-2.5" : "px-4 py-2"
+          }`}
         >
           Reset
         </button>
@@ -113,6 +120,7 @@ type DropdownFieldProps = {
   config: FilterDropdownConfig;
   value: string;
   isOpen: boolean;
+  compact?: boolean;
   onToggle: () => void;
   onSelect: (value: string) => void;
 };
@@ -121,6 +129,7 @@ function DropdownField({
   config,
   value,
   isOpen,
+  compact = false,
   onToggle,
   onSelect,
 }: DropdownFieldProps) {
@@ -129,16 +138,18 @@ function DropdownField({
     <div className="relative">
       <button
         type="button"
-        className="flex w-full h-full items-start justify-between rounded-lg border border-black/10 bg-white px-3 py-2 text-sm shadow-sm hover:border-black focus:border-black focus:outline-none focus:ring-2 focus:ring-black/10"
+        className={`flex w-full items-start justify-between rounded-lg border border-black/10 bg-white text-sm shadow-sm hover:border-black focus:border-black focus:outline-none focus:ring-2 focus:ring-black/10 ${
+          compact ? "min-h-[62px] px-3 py-2.5" : "h-full px-3 py-2"
+        }`}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         onClick={onToggle}
       >
         <span className="text-left">
-          <span className="block text-xs font-semibold uppercase tracking-wide text-neutral-500">
+          <span className={`block font-semibold uppercase tracking-wide text-neutral-500 ${compact ? "text-[10px]" : "text-xs"}`}>
             {label}
           </span>
-          <span className="block text-sm text-neutral-800">{value}</span>
+          <span className={`block text-neutral-800 ${compact ? "pt-1 text-[13px] leading-4" : "text-sm"}`}>{value}</span>
         </span>
         <span className="ml-3 text-neutral-500">{isOpen ? "▴" : "▾"}</span>
       </button>

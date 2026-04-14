@@ -66,7 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           >
             <main className="flex-1 overflow-hidden px-4 py-4 sm:px-5 lg:px-8">
               <Providers>
-                <div className="grid h-full gap-4 overflow-visible lg:grid-cols-[280px_minmax(0,1fr)]">
+                <div className="grid h-full gap-6 overflow-visible lg:grid-cols-[340px_minmax(0,1fr)]">
                   <Sidebar pageTitle="Canadian Startup Jobs" />
                   <div className="min-h-0 overflow-visible">{children}</div>
                 </div>

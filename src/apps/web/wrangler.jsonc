@@ -1,14 +1,42 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "canadianstartupjobs",
-  "main": ".open-next/worker.js",
+  "main": "custom-worker.ts",
   "compatibility_date": "2026-04-04",
   "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": true,
   "keep_vars": true,
+  "vars": {
+    "ALLOWED_ORIGINS": "https://canadianstartupjobs.matteo-tanzi.dev,https://canadianstartupjobs-api.matteo-tanzi.dev,http://localhost:3000,http://localhost:3001",
+    "ANTHROPIC_FAST_MODEL": "claude-haiku-4-5-20251001",
+    "ANTHROPIC_MAIN_MODEL": "claude-sonnet-4-6"
+  },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  "triggers": {
+    "crons": ["*/2 * * * *"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "canadianstartupjobs",
+      "database_id": "6528375b-dec8-4b6b-a1dc-ce3cdcf4b120",
+      "migrations_dir": "../../packages/db/d1"
+    }
+  ],
+  "routes": [
+    {
+      "pattern": "canadianstartupjobs.matteo-tanzi.dev",
+      "custom_domain": true
+    },
+    {
+      "pattern": "canadianstartupjobs-api.matteo-tanzi.dev",
+      "custom_domain": true
+    }
+  ],
   "observability": {
     "enabled": true
   }
