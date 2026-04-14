@@ -1,0 +1,69 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - main [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - link [ref=e8] [cursor=pointer]:
+            - /url: https://buildcanada.com
+            - img [ref=e9]
+          - link "Canadian Startup Jobs" [ref=e21] [cursor=pointer]:
+            - /url: /job-board
+          - generic [ref=e22]:
+            - paragraph [ref=e23]: A community-driven job board connecting top talent with Canadian-owned and operated startups.
+            - button "FAQ" [ref=e24] [cursor=pointer]
+          - region "Job listings" [ref=e26]:
+            - heading "Latest Jobs" [level=2] [ref=e27]
+            - list [ref=e28]:
+              - button "Senior Territory Sales Representative Alert Labs" [ref=e30]:
+                - paragraph [ref=e31]: Senior Territory Sales Representative
+                - paragraph [ref=e32]: Alert Labs
+              - button "<UNKNOWN> Alert Labs" [ref=e34]:
+                - paragraph [ref=e35]: <UNKNOWN>
+                - paragraph [ref=e36]: Alert Labs
+        - main [ref=e38]:
+          - generic [ref=e42]:
+            - generic [ref=e43]:
+              - generic [ref=e44]: Search jobs
+              - searchbox "Search jobs" [ref=e45]
+            - generic [ref=e46]:
+              - generic [ref=e47]:
+                - heading "Filters" [level=2] [ref=e48]
+                - generic [ref=e49]: 0 active
+              - generic [ref=e50]:
+                - button "Province Any Province ▾" [ref=e52]:
+                  - generic [ref=e53]:
+                    - generic [ref=e54]: Province
+                    - generic [ref=e55]: Any Province
+                  - generic [ref=e56]: ▾
+                - button "Job Type Any Job Type ▾" [ref=e58]:
+                  - generic [ref=e59]:
+                    - generic [ref=e60]: Job Type
+                    - generic [ref=e61]: Any Job Type
+                  - generic [ref=e62]: ▾
+                - button "Experience Any Experience ▾" [ref=e64]:
+                  - generic [ref=e65]:
+                    - generic [ref=e66]: Experience
+                    - generic [ref=e67]: Any Experience
+                  - generic [ref=e68]: ▾
+                - button "Industry Any Industry ▾" [ref=e70]:
+                  - generic [ref=e71]:
+                    - generic [ref=e72]: Industry
+                    - generic [ref=e73]: Any Industry
+                  - generic [ref=e74]: ▾
+                - button "Role Any Role ▾" [ref=e76]:
+                  - generic [ref=e77]:
+                    - generic [ref=e78]: Role
+                    - generic [ref=e79]: Any Role
+                  - generic [ref=e80]: ▾
+              - generic [ref=e81]:
+                - button "Apply" [ref=e82]
+                - button "Reset" [ref=e83]
+    - contentinfo [ref=e84]:
+      - paragraph [ref=e86]:
+        - text: 🏗️🇨🇦 A
+        - link "Build Canada" [ref=e87] [cursor=pointer]:
+          - /url: /job-board
+        - text: project.
+  - region "Notifications (F8)":
+    - list
+  - alert [ref=e88]

@@ -1,0 +1,98 @@
+{
+    "wallTime": 159,
+    "cpuTime": 151,
+    "truncated": false,
+    "executionModel": "stateless",
+    "outcome": "ok",
+    "scriptVersion": {
+        "id": "672f68c3-ab19-417f-a335-baa7d0d92c5c"
+    },
+    "scriptName": "canadianstartupjobs",
+    "diagnosticsChannelEvents": [],
+    "exceptions": [],
+    "logs": [],
+    "eventTimestamp": 1775290760553,
+    "event": {
+        "request": {
+            "url": "https://canadianstartupjobs.matteo-beatstanzi.workers.dev/job-board",
+            "method": "GET",
+            "headers": {
+                "accept": "*/*",
+                "accept-encoding": "gzip, br",
+                "cf-connecting-ip": "198.98.118.218",
+                "cf-ipcountry": "CA",
+                "cf-ray": "9e6ee3356c9c592d",
+                "cf-visitor": "{\"scheme\":\"https\"}",
+                "connection": "Keep-Alive",
+                "host": "canadianstartupjobs.matteo-beatstanzi.workers.dev",
+                "user-agent": "curl/8.18.0",
+                "x-forwarded-proto": "https",
+                "x-real-ip": "198.98.118.218"
+            },
+            "cf": {
+                "httpProtocol": "HTTP/1.1",
+                "requestPriority": "",
+                "edgeRequestKeepAliveStatus": 1,
+                "requestHeaderNames": {},
+                "clientTcpRtt": 4,
+                "clientQuicRtt": 0,
+                "colo": "YYZ",
+                "asn": 21949,
+                "asOrganization": "Beanfield",
+                "country": "CA",
+                "isEUCountry": false,
+                "city": "Toronto",
+                "continent": "NA",
+                "region": "Ontario",
+                "regionCode": "ON",
+                "timezone": "America/Toronto",
+                "longitude": "-79.39864",
+                "latitude": "43.70643",
+                "postalCode": "M5A",
+                "tlsVersion": "TLSv1.3",
+                "tlsCipher": "AEAD-AES256-GCM-SHA384",
+                "tlsClientRandom": "DuQG9DZyNe7hwFwThV032Fiz9tQTPcFlo0H0/2nKgIQ=",
+                "tlsClientCiphersSha1": "kTkJ+HAwBvIuoPFncb1wEDLcgfg=",
+                "tlsClientExtensionsSha1": "p2XN7z/lcnmBD9Q+f8xSyG4x4VA=",
+                "tlsClientExtensionsSha1Le": "ydwLHTahJx17MvHnnvv2lsdgs/g=",
+                "tlsExportedAuthenticator": {
+                    "clientHandshake": "431913630912e3f4f0c5e44396d30be9cdf1cc6380e56a7b53b5eaf82dd51eb4df0afb3249b5e0c81052b602f2d4f4f7",
+                    "serverHandshake": "b22fe4ea98cd7bab98caa399a0714d7750d1a96bdd9af8c19b616af5e9755328ebd9d904b8017c8f9d21ecfb41fe7c00",
+                    "clientFinished": "1ea14d37e7d03a36868f313ce635ad3d6442171586f9375a704765270c8e95ba76b3c50c62c22e686ee93cd2f8c60efa",
+                    "serverFinished": "fbd34e3214c26ff4b6a00a3e4b32d104984fb3f0ca03ff058c9fa7fe15ad08e5bebdb0578cb144639637a0e4e26dde66"
+                },
+                "tlsClientHelloLength": "487",
+                "tlsClientAuth": {
+                    "certPresented": "0",
+                    "certVerified": "NONE",
+                    "certRevoked": "0",
+                    "certIssuerDN": "",
+                    "certSubjectDN": "",
+                    "certIssuerDNRFC2253": "",
+                    "certSubjectDNRFC2253": "",
+                    "certIssuerDNLegacy": "",
+                    "certSubjectDNLegacy": "",
+                    "certSerial": "",
+                    "certIssuerSerial": "",
+                    "certSKI": "",
+                    "certIssuerSKI": "",
+                    "certFingerprintSHA1": "",
+                    "certFingerprintSHA256": "",
+                    "certNotBefore": "",
+                    "certNotAfter": "",
+                    "certRFC9440": "",
+                    "certRFC9440TooLarge": false,
+                    "certChainRFC9440": "",
+                    "certChainRFC9440TooLarge": false
+                },
+                "verifiedBotCategory": "",
+                "edgeL4": {
+                    "deliveryRate": 746421
+                }
+            }
+        },
+        "response": {
+            "status": 200
+        }
+    }
+}

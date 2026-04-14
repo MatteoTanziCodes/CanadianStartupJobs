@@ -14,9 +14,6 @@ import { useJobsContext } from "@/contexts/jobs";
  * - Add source badge (local / scraper) + Verified 🇨🇦 indicator
  */
 export default function JobList(props: JobListProps = {}) {
-  const { maxHeight } = props;
-  const computedMaxHeight =
-    typeof maxHeight === "number" ? Math.max(160, maxHeight) : undefined;
   const [isMobile, setIsMobile] = useState(false);
   const firstCardRef = useRef<HTMLDivElement | null>(null);
   const [cardHeight, setCardHeight] = useState<number>();
@@ -71,9 +68,7 @@ export default function JobList(props: JobListProps = {}) {
     selectJob(jobId);
   };
 
-  const listStyle: CSSProperties = computedMaxHeight
-    ? { maxHeight: `calc(${computedMaxHeight}px - 177px)` }
-    : {};
+  const listStyle: CSSProperties = {};
 
   if (isMobile && cardHeight) {
     listStyle.maxHeight = `${cardHeight}px`;

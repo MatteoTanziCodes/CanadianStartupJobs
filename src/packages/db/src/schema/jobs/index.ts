@@ -30,8 +30,17 @@ const jobs = sqliteTable("jobs", {
   company: text("company").notNull(),
   jobBoardUrl: text("job_board_url"),
   postingUrl: text("posting_url"),
+  canonicalPostingUrl: text("canonical_posting_url"),
+  atsProvider: text("ats_provider"),
+  extractionMethod: text("extraction_method").notNull().default("llm"),
+  listingStatus: text("listing_status").notNull().default("active"),
+  reviewStatus: text("review_status").notNull().default("approved"),
+  reviewReason: text("review_reason"),
   isAtAStartup: booleanColumn("is_at_a_startup"),
   lastScrapedMarkdown: text("last_scraped_markdown"), // For vector search
+  firstSeenAt: timestampNowColumn("first_seen_at"),
+  lastSeenAt: timestampNowColumn("last_seen_at"),
+  lastCheckedAt: timestampNowColumn("last_checked_at"),
   createdAt: timestampNowColumn("created_at"),
   updatedAt: timestampNowColumn("updated_at"),
 });

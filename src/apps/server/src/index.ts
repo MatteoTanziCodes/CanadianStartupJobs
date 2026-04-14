@@ -8,7 +8,7 @@ import sources from "./routes/sources";
 import admin from "./routes/admin";
 import type { AppEnv } from "./types/app";
 import { withRuntimeContext } from "./lib/db/runtime";
-import { seedDefaultSources } from "./lib/pipeline/seed";
+import { seedDefaultOrganizations, seedDefaultSources } from "./lib/pipeline/seed";
 import { processQueueBatch } from "./workers/processQueueBatch";
 
 const app = new Hono<AppEnv>();
@@ -58,8 +58,9 @@ export default {
         },
       },
       async () => {
+        await seedDefaultOrganizations();
         await seedDefaultSources();
-        await processQueueBatch({ maxItems: 20, maxDurationMs: 25_000 });
+        await processQueueBatch({ maxItems: 80, maxDurationMs: 55_000, maxHeavyItems: 6 });
       },
     );
   },

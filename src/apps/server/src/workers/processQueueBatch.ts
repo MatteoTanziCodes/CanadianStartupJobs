@@ -4,6 +4,29 @@ import { getAgent, AgentNames } from "@/lib/ai/agents/dictionary";
 import { AppError, ERROR_CODES } from "@/lib/errors";
 import type { AgentHelpers, AgentResult } from "@/lib/ai/agents/helpers/types";
 
+const SUBREQUEST_LIMIT_ERROR = "Too many subrequests by single Worker invocation";
+const HEAVY_AGENTS = new Set(["jobAgent", "jobBoardAgent", "qualificationAgent", "organizationAgent"]);
+
+const isSubrequestLimitError = (value: unknown) => {
+  if (!value) {
+    return false;
+  }
+
+  if (value instanceof Error) {
+    return value.message.includes(SUBREQUEST_LIMIT_ERROR);
+  }
+
+  if (typeof value === "string") {
+    return value.includes(SUBREQUEST_LIMIT_ERROR);
+  }
+
+  if (typeof value === "object" && "message" in value && typeof value.message === "string") {
+    return value.message.includes(SUBREQUEST_LIMIT_ERROR);
+  }
+
+  return false;
+};
+
 const handleRetry = async (
   queuedItem: Awaited<ReturnType<typeof getNextQueuedItem>>,
 ) => {
@@ -112,10 +135,21 @@ export const processNextQueuedItem = async () => {
       errors: [errorObj],
     });
 
-    await updateStatus({ id: queuedItem.id, status: "failed" });
+    if (isSubrequestLimitError(err)) {
+      await updateStatus({ id: queuedItem.id, status: "queued" });
+
+      return {
+        status: "deferred" as const,
+        queueId: queuedItem.id,
+        agent: queuedItem.agent,
+        reason: SUBREQUEST_LIMIT_ERROR,
+      };
+    }
+
+    const shouldRetry = await handleRetry(queuedItem);
 
     return {
-      status: "failed" as const,
+      status: shouldRetry ? "retrying" as const : "failed" as const,
       queueId: queuedItem.id,
       agent: queuedItem.agent,
       reason: err instanceof Error ? err.message : "unknown-error",
@@ -126,6 +160,25 @@ export const processNextQueuedItem = async () => {
   const hasError = Array.isArray(errors) && errors.length > 0;
 
   if (hasError) {
+    if (errors.some(isSubrequestLimitError)) {
+      await updateCall({
+        id: callRow.id,
+        usage: result?.usage ?? [],
+        result: result?.result ?? [],
+        logs: result?.logs ?? [],
+        errors,
+      });
+      await updateStatus({ id: queuedItem.id, status: "queued" });
+
+      return {
+        status: "deferred" as const,
+        queueId: queuedItem.id,
+        agent: queuedItem.agent,
+        reason: SUBREQUEST_LIMIT_ERROR,
+        errors,
+      };
+    }
+
     const shouldRetry = await handleRetry(queuedItem);
 
     if (!shouldRetry) {
@@ -163,6 +216,7 @@ export const processNextQueuedItem = async () => {
       await addToQueue({
         payload: child.payload,
         agent: child.agent,
+        maxRetries: child.maxRetries,
       });
     }
   }
@@ -178,16 +232,31 @@ export const processNextQueuedItem = async () => {
 export const processQueueBatch = async (args: {
   maxItems?: number;
   maxDurationMs?: number;
+  maxHeavyItems?: number;
 } = {}) => {
   const maxItems = args.maxItems ?? 10;
   const maxDurationMs = args.maxDurationMs ?? 25_000;
+  const maxHeavyItems = args.maxHeavyItems ?? 1;
   const startedAt = Date.now();
   const results = [];
+  let heavyItemsProcessed = 0;
 
   while (results.length < maxItems && Date.now() - startedAt < maxDurationMs) {
     try {
       const processed = await processNextQueuedItem();
       results.push(processed);
+
+      if (HEAVY_AGENTS.has(processed.agent)) {
+        heavyItemsProcessed += 1;
+      }
+
+      if (processed.status === "deferred") {
+        break;
+      }
+
+      if (heavyItemsProcessed >= maxHeavyItems) {
+        break;
+      }
     } catch (err) {
       if (err instanceof AppError && err.code === ERROR_CODES.DB_QUERY_FAILED) {
         break;

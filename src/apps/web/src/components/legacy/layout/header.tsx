@@ -5,12 +5,12 @@ import SearchBar from "@/components/legacy/layout/searchbar";
 import { useJobsContext } from "@/contexts/jobs";
 import { COLOURS } from "@/utils/constants";
 
-export default function Header() {
+export default function Header({ className = "" }: { className?: string }) {
   const { searchTerm, setSearchTerm } = useJobsContext();
 
   return (
     <header
-      className="relative z-50 backdrop-blur"
+      className={`relative z-50 backdrop-blur ${className}`.trim()}
       style={{ backgroundColor: COLOURS.muted }}
     >
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8">

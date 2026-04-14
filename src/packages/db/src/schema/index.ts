@@ -2,6 +2,7 @@
 // Add your table schemas here or import them from separate files
 import {
   organizations,
+  organizationSeeds,
   jobBoardCaches,
   orgsSizes,
   orgsStages,
@@ -34,6 +35,7 @@ import {
   portfolioCaches,
   sourcesPortfolioCaches,
 } from "./sources/index";
+import { pageCaches } from "./pages/index";
 import {
   calls, queues
 } from "./llm/index";
@@ -41,6 +43,7 @@ import {
 
 export {
   organizations,
+  organizationSeeds,
   jobBoardCaches,
   orgsSizes,
   orgsStages,
@@ -66,6 +69,7 @@ export {
   sources,
   portfolioCaches,
   sourcesPortfolioCaches,
+  pageCaches,
   calls,
   queues,
 };

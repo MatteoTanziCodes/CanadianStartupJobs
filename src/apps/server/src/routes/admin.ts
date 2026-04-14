@@ -1,6 +1,7 @@
-import { jobs, queues, sources } from "@canadian-startup-jobs/db";
-import { seedDefaultSources } from "@/lib/pipeline/seed";
+import { jobs, organizationSeeds, organizations, queues, sources } from "@canadian-startup-jobs/db";
+import { seedDefaultOrganizations, seedDefaultSources } from "@/lib/pipeline/seed";
 import { withRuntimeContext } from "@/lib/db/runtime";
+import { resetFailedQueuedItems } from "@/lib/db/functions/queues";
 import { processQueueBatch } from "@/workers/processQueueBatch";
 import { Hono, type Context } from "hono";
 import type { AppEnv } from "@/types/app";
@@ -58,11 +59,25 @@ app.get("/pipeline/status", async (c) => {
       env: getRuntimeEnv(c),
     },
     async () => {
-      const [jobCount, queueCount, sourceCount] = await Promise.all([
+      const [jobCount, queueCount, sourceCount, organizationCount, organizationSeedCount] = await Promise.all([
         c.get("db").$count(jobs),
         c.get("db").$count(queues),
         c.get("db").$count(sources),
+        c.get("db").$count(organizations),
+        c.get("db").$count(organizationSeeds),
       ]);
+      const queueRows = await c.get("db").select({
+        agent: queues.agent,
+        status: queues.status,
+      }).from(queues);
+      const queueByAgent = queueRows.reduce<Record<string, number>>((acc, row) => {
+        acc[row.agent] = (acc[row.agent] ?? 0) + 1;
+        return acc;
+      }, {});
+      const queueByStatus = queueRows.reduce<Record<string, number>>((acc, row) => {
+        acc[row.status] = (acc[row.status] ?? 0) + 1;
+        return acc;
+      }, {});
 
       return c.json({
         ok: true,
@@ -70,6 +85,12 @@ app.get("/pipeline/status", async (c) => {
           jobs: jobCount,
           queuedItems: queueCount,
           sources: sourceCount,
+          organizations: organizationCount,
+          organizationSeeds: organizationSeedCount,
+        },
+        queue: {
+          byAgent: queueByAgent,
+          byStatus: queueByStatus,
         },
       });
     },
@@ -83,10 +104,16 @@ app.post("/pipeline/run", async (c) => {
   }
 
   const body = await c.req.json().catch(() => ({}));
-  const seed = body.seed !== false;
+  const seedOrganizations = body.seedOrganizations !== false;
+  const seedSources = body.seedSources === true || body.seed === true;
   const forceSeed = body.forceSeed === true;
+  const resetFailed = body.resetFailed === true;
+  const resetAgents = Array.isArray(body.resetAgents)
+    ? body.resetAgents.filter((agent: unknown): agent is string => typeof agent === "string" && agent.length > 0)
+    : undefined;
   const maxItems = Number(body.maxItems ?? 20);
   const maxDurationMs = Number(body.maxDurationMs ?? 25_000);
+  const maxHeavyItems = Number(body.maxHeavyItems ?? 1);
 
   return await withRuntimeContext(
     {
@@ -94,22 +121,39 @@ app.post("/pipeline/run", async (c) => {
       env: getRuntimeEnv(c),
     },
     async () => {
-      const seeded = seed ? await seedDefaultSources({ force: forceSeed }) : null;
-      const processed = await processQueueBatch({ maxItems, maxDurationMs });
-      const [jobCount, queueCount, sourceCount] = await Promise.all([
+      const seededOrganizations = seedOrganizations ? await seedDefaultOrganizations({ force: forceSeed }) : null;
+      const seededSources = seedSources ? await seedDefaultSources({ force: forceSeed }) : null;
+      const reset = resetFailed
+        ? await resetFailedQueuedItems({ agents: resetAgents })
+        : [];
+      const processed = await processQueueBatch({ maxItems, maxDurationMs, maxHeavyItems });
+      const [jobCount, queueCount, sourceCount, organizationCount, organizationSeedCount] = await Promise.all([
         c.get("db").$count(jobs),
         c.get("db").$count(queues),
         c.get("db").$count(sources),
+        c.get("db").$count(organizations),
+        c.get("db").$count(organizationSeeds),
       ]);
 
       return c.json({
         ok: true,
-        seeded,
+        seeded: {
+          organizations: seededOrganizations,
+          sources: seededSources,
+        },
+        reset: {
+          requested: resetFailed,
+          count: reset.length,
+          agents: resetAgents ?? null,
+          queueIds: reset.map((item) => item.id),
+        },
         processed,
         counts: {
           jobs: jobCount,
           queuedItems: queueCount,
           sources: sourceCount,
+          organizations: organizationCount,
+          organizationSeeds: organizationSeedCount,
         },
       });
     },

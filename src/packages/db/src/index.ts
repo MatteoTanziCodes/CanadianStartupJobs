@@ -1,6 +1,7 @@
 import { drizzle } from "drizzle-orm/d1";
 import {
   organizations,
+  organizationSeeds,
   jobBoardCaches,
   orgsSizes,
   orgsStages,
@@ -26,6 +27,7 @@ import {
   sources,
   portfolioCaches,
   sourcesPortfolioCaches,
+  pageCaches,
   calls,
   queues
 } from "./schema/index";
@@ -40,6 +42,11 @@ const schemas = {
     select: createSelectSchema(organizations),
     insert: createInsertSchema(organizations),
     update: createUpdateSchema(organizations),
+  },
+  organizationSeeds: {
+    select: createSelectSchema(organizationSeeds),
+    insert: createInsertSchema(organizationSeeds),
+    update: createUpdateSchema(organizationSeeds),
   },
   jobBoardCaches: {
     select: createSelectSchema(jobBoardCaches),
@@ -167,6 +174,11 @@ const schemas = {
     insert: createInsertSchema(sourcesPortfolioCaches),
     update: createUpdateSchema(sourcesPortfolioCaches),
   },
+  pageCaches: {
+    select: createSelectSchema(pageCaches),
+    insert: createInsertSchema(pageCaches),
+    update: createUpdateSchema(pageCaches),
+  },
   calls: {
     select: createSelectSchema(calls),
     insert: createInsertSchema(calls),
@@ -180,6 +192,7 @@ const schemas = {
 };
 const schema = {
   organizations,
+  organizationSeeds,
   jobBoardCaches,
   orgsSizes,
   orgsStages,
@@ -205,6 +218,7 @@ const schema = {
   sources,
   portfolioCaches,
   sourcesPortfolioCaches,
+  pageCaches,
   calls,
   queues,
 };
@@ -217,6 +231,7 @@ export {
   schema,
   schemas,
   organizations,
+  organizationSeeds,
   jobBoardCaches,
   orgsSizes,
   orgsStages,
@@ -242,6 +257,7 @@ export {
   sources,
   portfolioCaches,
   sourcesPortfolioCaches,
+  pageCaches,
   calls,
   queues
 };

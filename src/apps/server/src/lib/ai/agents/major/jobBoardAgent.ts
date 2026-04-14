@@ -1,7 +1,11 @@
 import { AppError, ERROR_CODES } from "@/lib/errors";
 import { generateObject } from "ai";
 import { claudeFast } from "@/lib/ai/models";
-import { utils } from "@/lib/firecrawl";
+import { hasForeignHeadquartersSignal, hasLowSignalContent, isBlockedJobUrl } from "@/lib/quality/content";
+import { detectAtsProvider, extractAtsJobLinks } from "@/lib/ats";
+import { markMissingJobsAsStale } from "@/lib/pipeline/jobs";
+import { getCanonicalPostingUrl, normalizeHttpUrl } from "@/lib/quality/urls";
+import { fetchCachedPage } from "@/lib/cache/pages";
 import { z } from "zod";
 import type { AgentHelpers, AgentResult } from "../helpers/types";
 import type { QueuedItem } from "@/lib/db/functions/queues";
@@ -88,22 +92,89 @@ const getCareersPage = async (url: string, preFetchedData?: z.infer<typeof preFe
     }
   }
 
-  const { markdown, links } = await utils.getMdAndLinks(url);
-  if (!markdown) throw new AppError(ERROR_CODES.FC_MARKDOWN_FAILED, `Failed to get markdown for ${url}`);
-  if (!links) throw new AppError(ERROR_CODES.FC_LINKS_FAILED, `Failed to get links for ${url}`);
-  return { markdown, links, source: 'live' as const, pulledAt: Date.now(), age: 0 };
+  return await fetchCachedPage({
+    url,
+    kind: "careers_page",
+    ttlMs: FRESHNESS_TTL_MS,
+  });
+};
+
+const getSecondaryBoardCandidates = (baseUrl: string, links: string[]) => {
+  const seen = new Set<string>();
+  const candidates: string[] = [];
+  const baseNormalized = normalizeHttpUrl(baseUrl);
+
+  for (const link of links) {
+    const normalized = normalizeHttpUrl(link);
+    if (!normalized || normalized === baseNormalized || seen.has(normalized)) {
+      continue;
+    }
+
+    const lower = normalized.toLowerCase();
+    const looksSecondaryBoard = [
+      "/jobs",
+      "/job-listings",
+      "/open-positions",
+      "/openings",
+      "/positions",
+      "/join-us",
+      "/join",
+    ].some((pattern) => lower.includes(pattern)) || detectAtsProvider(normalized) !== "unknown";
+
+    if (!looksSecondaryBoard || isBlockedJobUrl(normalized)) {
+      continue;
+    }
+
+    seen.add(normalized);
+    candidates.push(normalized);
+  }
+
+  return candidates.slice(0, 2);
+};
+
+const mergeJobEvaluations = (args: {
+  current: Array<{ url: string; shouldQueue: boolean; reason: string; jobTitle?: string; atsProvider?: string }>;
+  additions: Array<{ url: string; shouldQueue: boolean; reason: string; jobTitle?: string; atsProvider?: string }>;
+}) => {
+  const mergedByUrl = new Map<string, { url: string; shouldQueue: boolean; reason: string; jobTitle?: string; atsProvider?: string }>();
+
+  for (const evaluation of args.current) {
+    mergedByUrl.set(evaluation.url, evaluation);
+  }
+
+  for (const evaluation of args.additions) {
+    const existing = mergedByUrl.get(evaluation.url);
+    if (!existing) {
+      mergedByUrl.set(evaluation.url, evaluation);
+      continue;
+    }
+
+    mergedByUrl.set(evaluation.url, {
+      url: evaluation.url,
+      shouldQueue: existing.shouldQueue || evaluation.shouldQueue,
+      reason: existing.reason === evaluation.reason ? existing.reason : `${existing.reason}; ${evaluation.reason}`,
+      jobTitle: existing.jobTitle ?? evaluation.jobTitle,
+      atsProvider: existing.atsProvider ?? evaluation.atsProvider,
+    });
+  }
+
+  return Array.from(mergedByUrl.values());
 };
 
 const preFetchJobData = async (url: string) => {
   try {
-    const { markdown, links } = await utils.getMdAndLinks(url);
-    return {
-      url,
-      markdown: markdown || "",
-      links: links || [],
-      pulledAt: Date.now(),
-      freshTil: Date.now() + FRESHNESS_TTL_MS,
-    };
+      const doc = await fetchCachedPage({
+        url,
+        kind: "job_posting",
+        ttlMs: FRESHNESS_TTL_MS,
+      });
+      return {
+        url,
+        markdown: doc.markdown,
+        links: doc.links,
+        pulledAt: doc.pulledAt,
+        freshTil: doc.freshTil,
+      };
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     return {
@@ -148,8 +219,70 @@ const jobBoardAgent = async (
     const jobLinks = await findJobLinks(careersDoc.markdown, careersDoc.links, payload.careersUrl, usage);
     logs.push(`Found ${jobLinks.length} job posting links`);
 
-    const qualifyingLinks = jobLinks.filter(e => e.shouldQueue);
-    const filteredOut = jobLinks.filter(e => !e.shouldQueue);
+    const atsLinks = extractAtsJobLinks(payload.careersUrl, careersDoc.links);
+    logs.push(`Deterministic ATS links found: ${atsLinks.length}`);
+
+    let mergedJobLinks = mergeJobEvaluations({
+      current: jobLinks.map((jobLink) => ({ ...jobLink })),
+      additions: atsLinks.map((atsLink) => ({
+        url: atsLink.url,
+        shouldQueue: true,
+        reason: `deterministic ${atsLink.provider} job link`,
+        jobTitle: atsLink.title,
+        atsProvider: atsLink.provider,
+      })),
+    });
+
+    const secondaryBoardCandidates = getSecondaryBoardCandidates(payload.careersUrl, careersDoc.links);
+    if (mergedJobLinks.every((evaluation) => !evaluation.shouldQueue) && secondaryBoardCandidates.length > 0) {
+      logs.push(`No direct job links found, following secondary board candidates: ${secondaryBoardCandidates.join(", ")}`);
+
+      for (const candidateUrl of secondaryBoardCandidates) {
+        try {
+          const candidateDoc = await getCareersPage(candidateUrl);
+          if (hasLowSignalContent(candidateDoc.markdown)) {
+            logs.push(`Skipped low-signal secondary board page: ${candidateUrl}`);
+            continue;
+          }
+
+          const candidateJobLinks = await findJobLinks(candidateDoc.markdown, candidateDoc.links, candidateUrl, usage);
+          const candidateAtsLinks = extractAtsJobLinks(candidateUrl, candidateDoc.links);
+          mergedJobLinks = mergeJobEvaluations({
+            current: mergedJobLinks,
+            additions: [
+              ...candidateJobLinks.map((jobLink) => ({
+                ...jobLink,
+                reason: `${jobLink.reason} (via ${candidateUrl})`,
+              })),
+              ...candidateAtsLinks.map((atsLink) => ({
+                url: atsLink.url,
+                shouldQueue: true,
+                reason: `deterministic ${atsLink.provider} job link via ${candidateUrl}`,
+                jobTitle: atsLink.title,
+                atsProvider: atsLink.provider,
+              })),
+            ],
+          });
+          logs.push(`Secondary board ${candidateUrl} produced ${candidateJobLinks.length + candidateAtsLinks.length} candidate links`);
+        } catch (candidateErr) {
+          logs.push(`Secondary board fetch failed for ${candidateUrl}: ${candidateErr instanceof Error ? candidateErr.message : String(candidateErr)}`);
+        }
+      }
+    }
+
+    const qualifyingLinks = mergedJobLinks.filter((evaluation) => {
+      if (!evaluation.shouldQueue) {
+        return false;
+      }
+
+      if (isBlockedJobUrl(evaluation.url)) {
+        logs.push(`Filtered blocked job host: ${evaluation.url}`);
+        return false;
+      }
+
+      return true;
+    });
+    const filteredOut = mergedJobLinks.filter((evaluation) => !qualifyingLinks.includes(evaluation));
 
     logs.push(`Qualifying jobs to process: ${qualifyingLinks.length}`);
     logs.push(`Filtered out non-job links: ${filteredOut.length}`);
@@ -168,12 +301,26 @@ const jobBoardAgent = async (
         continue;
       }
 
+      if (hasLowSignalContent(data.markdown)) {
+        logs.push(`Skipped low-signal job page: ${data.url}`);
+        continue;
+      }
+
+      if (hasForeignHeadquartersSignal(data.markdown)) {
+        logs.push(`Skipped foreign-headquartered job page: ${data.url}`);
+        continue;
+      }
+
       const matchingEvaluation = qualifyingLinks.find(e => e.url === data.url);
       childQueueItems.push({
         payload: {
           organizationId: payload.organizationId,
           url: data.url,
           companyName: payload.companyName,
+          boardOperatorOrganizationId: payload.organizationId,
+          boardOperatorCompanyName: payload.companyName,
+          expectedJobTitle: matchingEvaluation?.jobTitle,
+          atsProvider: matchingEvaluation?.atsProvider ?? detectAtsProvider(data.url),
           preFetchedData: data,
         },
         agent: "jobAgent",
@@ -182,11 +329,21 @@ const jobBoardAgent = async (
       logs.push(`Queued jobAgent for ${data.url}${matchingEvaluation?.jobTitle ? ` (${matchingEvaluation.jobTitle})` : ''}`);
     }
 
+    if (qualifyingLinks.length > 0) {
+      await markMissingJobsAsStale({
+        organizationId: payload.organizationId,
+        activeUrls: qualifyingLinks.map((evaluation) => getCanonicalPostingUrl(evaluation.url)),
+      });
+      logs.push(`Reconciled stale jobs for organization ${payload.organizationId}`);
+    } else {
+      logs.push(`Skipped stale-job reconciliation for organization ${payload.organizationId} because no qualifying links were found`);
+    }
+
     const result = {
       organizationId: payload.organizationId,
       companyName: payload.companyName,
       careersUrl: payload.careersUrl,
-      totalLinksFound: jobLinks.length,
+      totalLinksFound: mergedJobLinks.length,
       qualifyingCount: qualifyingLinks.length,
       filteredOutCount: filteredOut.length,
       qualifyingLinks: qualifyingLinks.map(e => ({ url: e.url, jobTitle: e.jobTitle, reason: e.reason })),
@@ -200,13 +357,17 @@ const jobBoardAgent = async (
     };
 
     if (helpers.parentCallId) {
-      await helpers.updateCall({
-        id: helpers.parentCallId,
-        usage,
-        logs,
-        result,
-        errors: [],
-      });
+      try {
+        await helpers.updateCall({
+          id: helpers.parentCallId,
+          usage,
+          logs,
+          result,
+          errors: [],
+        });
+      } catch (updateErr) {
+        logs.push(`Call update failed: ${updateErr instanceof Error ? updateErr.message : String(updateErr)}`);
+      }
     }
 
     return {
@@ -222,13 +383,17 @@ const jobBoardAgent = async (
     logs.push(`Error: ${errorMessage}`);
 
     if (helpers.parentCallId) {
-      await helpers.updateCall({
-        id: helpers.parentCallId,
-        usage,
-        logs,
-        result: null,
-        errors: [{ message: errorMessage, stack: errorStack }],
-      });
+      try {
+        await helpers.updateCall({
+          id: helpers.parentCallId,
+          usage,
+          logs,
+          result: null,
+          errors: [{ message: errorMessage, stack: errorStack }],
+        });
+      } catch (updateErr) {
+        logs.push(`Call update failed: ${updateErr instanceof Error ? updateErr.message : String(updateErr)}`);
+      }
     }
 
     return {

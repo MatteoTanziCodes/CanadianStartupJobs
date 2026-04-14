@@ -9,10 +9,10 @@
   "vars": {
     "ALLOWED_ORIGINS": "https://canadianstartupjobs.matteo-beatstanzi.workers.dev,http://localhost:3000,http://localhost:3001",
     "ANTHROPIC_FAST_MODEL": "claude-haiku-4-5-20251001",
-    "ANTHROPIC_MAIN_MODEL": "claude-3-7-sonnet-latest"
+    "ANTHROPIC_MAIN_MODEL": "claude-sonnet-4-6"
   },
   "triggers": {
-    "crons": ["*/15 * * * *"]
+    "crons": ["*/2 * * * *"]
   },
   "d1_databases": [
     {
