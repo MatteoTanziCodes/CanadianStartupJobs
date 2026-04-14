@@ -7,11 +7,11 @@
     "zod": "^4.2.1"
   },
   "scripts": {
-    "deploy:web": "cd src/apps/web && npm ci --workspaces=false && npm run deploy",
-    "deploy:web:preview": "cd src/apps/web && npm ci --workspaces=false && npm run deploy",
+    "deploy:web": "cd src && npm ci && npm run deploy -w @canadian-startup-jobs/web",
+    "deploy:web:preview": "cd src && npm ci && npm run deploy -w @canadian-startup-jobs/web",
     "deploy:server": "npm run deploy:web",
     "deploy:server:preview": "npm run deploy:web:preview",
-    "db:migrate:server:local": "cd src/apps/web && npm ci --workspaces=false && npm run db:migrate:local",
-    "db:migrate:server:remote": "cd src/apps/web && npm ci --workspaces=false && npm run db:migrate:remote"
+    "db:migrate:server:local": "cd src && npm ci && npm run db:migrate:local -w @canadian-startup-jobs/web",
+    "db:migrate:server:remote": "cd src && npm ci && npm run db:migrate:remote -w @canadian-startup-jobs/web"
   }
 }
