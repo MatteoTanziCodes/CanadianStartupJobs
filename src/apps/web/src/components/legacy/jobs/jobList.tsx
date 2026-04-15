@@ -35,8 +35,18 @@ export default function JobList(props: JobListProps = {}) {
   };
 
   const listStyle: CSSProperties = props.maxHeight
-    ? { height: `${props.maxHeight}px`, maxHeight: `${props.maxHeight}px`, minHeight: 0 }
-    : { minHeight: 0 };
+    ? {
+        height: `${props.maxHeight}px`,
+        maxHeight: `${props.maxHeight}px`,
+        minHeight: 0,
+        WebkitOverflowScrolling: "touch",
+        scrollbarGutter: "stable",
+      }
+    : {
+        minHeight: 0,
+        WebkitOverflowScrolling: "touch",
+        scrollbarGutter: "stable",
+      };
 
   return (
     <section
@@ -46,7 +56,7 @@ export default function JobList(props: JobListProps = {}) {
     >
       <h2 className="text-lg font-semibold text-neutral-800">Latest Jobs</h2>
       <div
-        className="flex-1 min-h-0 space-y-2 overflow-y-auto pr-2 overscroll-contain"
+        className="flex-1 min-h-0 space-y-2 overflow-y-auto pr-2 overscroll-contain touch-pan-y"
         style={listStyle}
         role="list"
         aria-busy="true"

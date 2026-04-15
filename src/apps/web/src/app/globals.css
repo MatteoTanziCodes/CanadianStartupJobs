@@ -59,8 +59,13 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    background-color: #f6ebe3;
+  }
   body {
     @apply bg-background text-foreground font-sans;
+    background-color: #f6ebe3;
+    min-height: 100vh;
   }
   h1,
   h2,
