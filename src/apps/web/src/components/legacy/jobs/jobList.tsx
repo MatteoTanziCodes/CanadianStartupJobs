@@ -35,18 +35,18 @@ export default function JobList(props: JobListProps = {}) {
   };
 
   const listStyle: CSSProperties = props.maxHeight
-    ? { maxHeight: `${props.maxHeight}px` }
-    : {};
+    ? { height: `${props.maxHeight}px`, maxHeight: `${props.maxHeight}px`, minHeight: 0 }
+    : { minHeight: 0 };
 
   return (
     <section
       aria-label="Job listings"
       role="region"
-      className="flex h-full min-h-0 flex-col space-y-3"
+      className="flex h-full min-h-0 flex-col space-y-3 overflow-hidden"
     >
       <h2 className="text-lg font-semibold text-neutral-800">Latest Jobs</h2>
       <div
-        className="flex-1 min-h-0 space-y-2 overflow-y-auto pr-2"
+        className="flex-1 min-h-0 space-y-2 overflow-y-auto pr-2 overscroll-contain"
         style={listStyle}
         role="list"
         aria-busy="true"

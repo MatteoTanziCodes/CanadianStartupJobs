@@ -59,16 +59,27 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         style={{ backgroundColor: COLOURS.background }}
         className="text-neutral-900"
       >
-        <div className="flex min-h-screen flex-col px-4 py-5 md:px-5">
+        <div
+          className="flex min-h-screen flex-col px-4 py-5 md:px-5"
+          style={{ backgroundColor: COLOURS.background }}
+        >
           <div
             className="mx-auto flex w-full max-w-6xl flex-1 flex-col border-2 border-black"
             style={{ backgroundColor: COLOURS.background }}
           >
-            <main className="flex-1 overflow-hidden px-4 py-4 sm:px-5 lg:px-8">
+            <main
+              className="flex-1 overflow-hidden px-4 py-4 sm:px-5 lg:px-8"
+              style={{ backgroundColor: COLOURS.background }}
+            >
               <Providers>
                 <div className="grid h-full gap-6 overflow-visible lg:grid-cols-[340px_minmax(0,1fr)]">
                   <Sidebar pageTitle="Canadian Startup Jobs" />
-                  <div className="min-h-0 overflow-visible">{children}</div>
+                  <div
+                    className="min-h-0 overflow-visible"
+                    style={{ backgroundColor: COLOURS.background }}
+                  >
+                    {children}
+                  </div>
                 </div>
               </Providers>
             </main>
