@@ -18,10 +18,10 @@ import { z } from "zod";
 import { AppError, ERROR_CODES } from "@/lib/errors";
 
 const jsonbSchema = z.union([z.array(z.any()), z.any()]);
-const MAX_STRING_LENGTH = 1_200;
-const MAX_ARRAY_ITEMS = 20;
-const MAX_OBJECT_KEYS = 20;
-const MAX_ERROR_STACK_LENGTH = 1_500;
+const MAX_STRING_LENGTH = 800;
+const MAX_ARRAY_ITEMS = 10;
+const MAX_OBJECT_KEYS = 15;
+const MAX_ERROR_STACK_LENGTH = 1_000;
 
 const compactErrorValue = (value: unknown) => {
   if (!value || typeof value !== "object") {
@@ -48,6 +48,10 @@ const compactErrorValue = (value: unknown) => {
 
   if ("name" in record) {
     compacted.name = sanitizeForStorage(record.name, 1);
+  }
+
+  if ("originalError" in record) {
+    compacted.originalError = sanitizeForStorage(record.originalError, 1);
   }
 
   if (Object.keys(compacted).length > 0) {
