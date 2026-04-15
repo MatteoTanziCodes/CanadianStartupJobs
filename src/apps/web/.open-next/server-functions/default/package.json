@@ -39,7 +39,8 @@
     "zod": "^4.2.1"
   },
   "optionalDependencies": {
-    "@ast-grep/napi-linux-x64-gnu": "0.40.5"
+    "@ast-grep/napi-linux-x64-gnu": "0.40.5",
+    "lightningcss-linux-x64-gnu": "1.30.2"
   },
   "devDependencies": {
     "@opennextjs/cloudflare": "^1.18.0",

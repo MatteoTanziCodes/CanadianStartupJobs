@@ -322,10 +322,10 @@ ${primaryData.text}`,
 
 const createJobCache = async (url: string, markdown: string, contentHash?: string | null) => {
   const hash = contentHash ?? await sha256Hex(markdown);
-  const now = Date.now();
+  const now = new Date();
   const args = schemas.jobCaches.insert.safeParse({
     url,
-    freshTil: now + (7 * 24 * 60 * 60 * 1000),
+    freshTil: new Date(now.getTime() + (7 * 24 * 60 * 60 * 1000)),
     lastHash: hash,
   });
   if (args.error) throw new AppError(ERROR_CODES.SCHEMA_PARSE_FAILED, "Failed to parse job cache arguments", { ...args.error });

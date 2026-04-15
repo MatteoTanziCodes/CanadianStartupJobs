@@ -18,6 +18,12 @@ const nextConfig = {
         permanent: false,
         basePath: false, // match root without basePath to avoid loops
       },
+      {
+        source: "/jobs/:path*",
+        destination: "/job-board/jobs/:path*",
+        permanent: false,
+        basePath: false,
+      },
     ];
   },
   async rewrites() {

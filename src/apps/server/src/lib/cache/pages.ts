@@ -85,7 +85,7 @@ const upsertPageCache = async (args: {
     contentHash: args.contentHash,
     status: "fresh",
     lastError: null,
-    freshTil: args.freshTil,
+    freshTil: new Date(args.freshTil),
     lastScrapedAt: new Date(),
     lastCheckedAt: new Date(),
     updatedAt: new Date(),

@@ -5,10 +5,10 @@ import { AppError,ERROR_CODES } from "@/lib/errors";
 export async function createNewPortfolioCache(url: string) {
   const htmlPayload = await fetch(url);
   const hash = await sha256Hex(await htmlPayload.arrayBuffer());
-  const now = Date.now();
+  const now = new Date();
   const args = schemas.portfolioCaches.insert.safeParse({
     url,
-    freshTil: now + (7 * 24 * 60 * 60 * 1000),
+    freshTil: new Date(now.getTime() + (7 * 24 * 60 * 60 * 1000)),
     lastHash: hash
   });
   if (args.error) throw new AppError(ERROR_CODES.SCHEMA_PARSE_FAILED, "Failed to parse portfolio cache arguments", { ...args.error });
