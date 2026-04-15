@@ -6,7 +6,7 @@ import JobList from "@/components/legacy/jobs/jobList";
 import Header from "@/components/legacy/layout/header";
 import BuildCanada from "../common/svg/BuildCanada";
 
-function Sidebar({ pageTitle }: { pageTitle: string }) {
+function Sidebar({ pageTitle, className }: { pageTitle: string; className?: string }) {
   const [isFAQModalOpen, setIsFAQModalOpen] = useState(false);
   const listViewportRef = useRef<HTMLDivElement>(null);
   const [listMaxHeight, setListMaxHeight] = useState<number>();
@@ -41,7 +41,7 @@ function Sidebar({ pageTitle }: { pageTitle: string }) {
   }, []);
 
   return (
-    <div className="col-span-1 flex flex-col overflow-visible lg:h-full lg:min-h-0 lg:overflow-hidden">
+    <div className={`col-span-1 flex flex-col overflow-visible lg:h-full lg:min-h-0 lg:overflow-hidden${className ? ` ${className}` : ""}`}>
       <div className="mb-4 shrink-0">
         <Link href="https://buildcanada.com" className="block bg-[#8b2332] p-3 w-fit pr-8">
           <BuildCanada />

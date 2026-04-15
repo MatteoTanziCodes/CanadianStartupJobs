@@ -73,9 +73,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             >
               <Providers>
                 <div className="grid h-full gap-6 overflow-visible lg:grid-cols-[340px_minmax(0,1fr)]">
-                  <Sidebar pageTitle="Canadian Startup Jobs" />
+                  <Sidebar pageTitle="Canadian Startup Jobs" className="order-2 lg:order-1" />
                   <div
-                    className="min-h-0 overflow-visible"
+                    className="order-1 min-h-0 overflow-visible lg:order-2"
                     style={{ backgroundColor: COLOURS.background }}
                   >
                     {children}
