@@ -16,20 +16,15 @@ import { useResponsive } from "@/hooks/useResponsive";
  */
 export default function JobList(props: JobListProps = {}) {
   const { filteredJobs, selectJob, selectedJobId, currentPage, totalPages, prevPage, nextPage } = useJobsContext();
-  const { isMobile, isTablet } = useResponsive();
+  const { isMobile, isDesktop } = useResponsive();
   const router = useRouter();
   const jobCount = filteredJobs.length;
   const displayedJobs = useMemo(() => {
-    if (isMobile) {
+    if (!isDesktop) {
       return filteredJobs.slice(0, 3);
     }
-
-    if (isTablet) {
-      return filteredJobs.slice(0, 10);
-    }
-
     return filteredJobs;
-  }, [filteredJobs, isMobile, isTablet]);
+  }, [filteredJobs, isDesktop]);
 
   const handleJobClick = (jobId: string) => {
     if (isMobile) {
@@ -98,7 +93,7 @@ export default function JobList(props: JobListProps = {}) {
           ))
         )}
       </div>
-      {totalPages > 1 && (
+      {isDesktop && totalPages > 1 && (
         <div className="flex items-center justify-between gap-3 border-t border-black/10 pt-3">
           <button
             type="button"
