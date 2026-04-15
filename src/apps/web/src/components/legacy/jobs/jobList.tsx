@@ -51,8 +51,8 @@ export default function JobList(props: JobListProps = {}) {
     >
       <h2 className="text-lg font-semibold text-neutral-800">Latest Jobs</h2>
       <div
-        className="flex-1 min-h-0 space-y-2 overflow-y-auto pr-2"
-        style={listStyle}
+        className={`flex-1 min-h-0 space-y-2 pr-2${!isMobile ? " overflow-y-auto" : ""}`}
+        style={!isMobile ? listStyle : {}}
         role="list"
         aria-busy="true"
         aria-live="polite"
