@@ -29,26 +29,26 @@ export default function Header({
     : null;
 
   return (
-    <header className="space-y-4">
-      <div>
-        <h1 className="text-3xl font-bold text-neutral-900">{title}</h1>
-        <p className="text-lg text-neutral-600 mt-1">{company}</p>
+    <header className="space-y-5">
+      <div className="space-y-3">
+        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#8b2332]">
+          {company}
+        </p>
+        <h1 className="max-w-4xl text-3xl font-semibold leading-tight text-neutral-900 sm:text-4xl">
+          {title}
+        </h1>
         {salary && (
-          <>
-            <p className="inline-flex items-center gap-1 py-2 text-neutral-700 text-2xl">
-              {salary}
-            </p>
-          </>
+          <p className="text-xl font-medium text-neutral-800 sm:text-2xl">
+            {salary}
+          </p>
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 text-md">
+      <div className="flex flex-wrap items-center gap-3 text-sm text-neutral-700">
         <LocationBadge city={city} province={province} />
         <RemoteBadge remoteOk={remoteOk} />
         {isAtAStartup && (
-          <>
-            <StartupBadge />
-          </>
+          <StartupBadge />
         )}
       </div>
     </header>

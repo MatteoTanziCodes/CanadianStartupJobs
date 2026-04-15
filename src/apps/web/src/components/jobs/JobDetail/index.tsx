@@ -34,7 +34,7 @@ export default function JobDetail({ job }: JobDetailProps) {
   const updated_at_date = new Date(updated_at_timestamp);
 
   return (
-    <article className="space-y-6">
+    <article className="mx-auto flex max-w-4xl flex-col gap-8 overflow-visible">
       <Header
         title={title}
         company={company}

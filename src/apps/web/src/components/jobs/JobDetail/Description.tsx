@@ -13,10 +13,12 @@ export default function Description({ description }: DescriptionProps) {
 
   return (
     <section>
-      <h2 className="text-xl font-semibold text-neutral-900 mb-3">Description</h2>
-      <div className="prose prose-sm max-w-none text-neutral-700">
+      <h2 className="mb-4 text-xl font-semibold text-neutral-900">Description</h2>
+      <div className="max-w-3xl space-y-4 text-[15px] leading-8 text-neutral-700">
         {paragraphs.map((paragraph, index) => (
-          <p key={index} className="whitespace-pre-wrap">{paragraph}</p>
+          <p key={index} className="whitespace-pre-wrap break-words">
+            {paragraph}
+          </p>
         ))}
       </div>
     </section>

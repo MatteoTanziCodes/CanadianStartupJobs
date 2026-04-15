@@ -14,8 +14,9 @@ const Homepage: React.FC = () => {
     <div className="flex min-h-0 flex-col overflow-visible">
       <div className="flex min-h-0 flex-col overflow-visible px-4 pb-6 sm:px-6 lg:px-8">
         {selectedRichJob ? (
-          <section className="min-h-0">
-            <div className="relative">
+          <section className="relative overflow-hidden rounded-[2rem] border border-black/10 bg-gradient-to-br from-white via-[#fffaf6] to-[#f5ece3] shadow-[0_22px_70px_rgba(0,0,0,0.08)]">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(139,35,50,0.12),_transparent_35%),radial-gradient(circle_at_bottom_left,_rgba(173,120,78,0.12),_transparent_30%)]" />
+            <div className="relative px-6 py-7 sm:px-8 sm:py-9 lg:px-10 lg:py-10">
               <JobDetail job={selectedRichJob} />
             </div>
           </section>
