@@ -15,13 +15,13 @@ import { useResponsive } from "@/hooks/useResponsive";
  * - Add source badge (local / scraper) + Verified 🇨🇦 indicator
  */
 export default function JobList(props: JobListProps = {}) {
-  const { filteredJobs, selectJob, selectedJobId } = useJobsContext();
+  const { filteredJobs, selectJob, selectedJobId, currentPage, totalPages, prevPage, nextPage } = useJobsContext();
   const { isMobile, isTablet } = useResponsive();
   const router = useRouter();
   const jobCount = filteredJobs.length;
   const displayedJobs = useMemo(() => {
     if (isMobile) {
-      return filteredJobs.slice(0, 8);
+      return filteredJobs.slice(0, 3);
     }
 
     if (isTablet) {
@@ -98,6 +98,29 @@ export default function JobList(props: JobListProps = {}) {
           ))
         )}
       </div>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between gap-3 border-t border-black/10 pt-3">
+          <button
+            type="button"
+            onClick={prevPage}
+            disabled={currentPage === 1}
+            className="rounded-full border border-black/10 px-3 py-1 text-xs font-medium uppercase tracking-wide text-neutral-700 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Previous
+          </button>
+          <p className="text-xs text-neutral-500">
+            Page {currentPage} of {totalPages}
+          </p>
+          <button
+            type="button"
+            onClick={nextPage}
+            disabled={currentPage === totalPages}
+            className="rounded-full border border-black/10 px-3 py-1 text-xs font-medium uppercase tracking-wide text-neutral-700 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </section>
   );
 }

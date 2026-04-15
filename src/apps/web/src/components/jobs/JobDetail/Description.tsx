@@ -3,7 +3,10 @@ interface DescriptionProps {
 }
 
 export default function Description({ description }: DescriptionProps) {
-  const paragraphs = description
+  const trimmedDescription = description.length > 2400
+    ? `${description.slice(0, 2400).trimEnd()}...`
+    : description;
+  const paragraphs = trimmedDescription
     .split(/\n{2,}/)
     .map((paragraph) => paragraph.trim())
     .filter(Boolean);

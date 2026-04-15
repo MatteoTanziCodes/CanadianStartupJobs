@@ -47,7 +47,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({ maxHeight } = {}) => {
     ? `${selectedRichJob.city}, ${selectedRichJob.province}`
     : activeJob.location;
   const applyUrl = selectedRichJob?.postingUrl ?? activeJob.applyUrl;
-  const fallbackJobType = "jobType" in activeJob ? activeJob.jobType : undefined;
   const salaryLabel =
     activeJob.salaryMin || activeJob.salaryMax
       ? `$${activeJob.salaryMin?.toLocaleString() ?? "—"} - $${activeJob.salaryMax?.toLocaleString() ?? "—"}`
@@ -59,17 +58,17 @@ const HeroSection: React.FC<HeroSectionProps> = ({ maxHeight } = {}) => {
         ...selectedRichJob.tags.industries.map((tag) => tag.name),
         ...selectedRichJob.tags.roles.map((tag) => tag.name),
       ]
-    : [];
+    : [activeJob.jobType, activeJob.experience, activeJob.industry, activeJob.role].filter(Boolean);
 
   return (
     <section
-      className="flex h-full flex-col gap-6 overflow-y-auto rounded-2xl border p-8 shadow-sm"
+      className="flex h-full flex-col gap-6 overflow-y-auto rounded-[2rem] border border-black/10 bg-gradient-to-br from-white via-[#fffaf6] to-[#f5ece3] p-8 shadow-[0_22px_70px_rgba(0,0,0,0.08)]"
       style={sectionStyle}
     >
       <div className="w-full max-w-4xl space-y-6">
         <div className="space-y-3">
-          <p className="text-sm font-semibold uppercase tracking-wide text-neutral-600">{activeJob.company}</p>
-          <h2 className="text-3xl font-semibold text-neutral-900">{activeJob.title}</h2>
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#8b2332]">{activeJob.company}</p>
+          <h2 className="max-w-4xl text-3xl font-semibold text-neutral-900 sm:text-4xl">{activeJob.title}</h2>
           <div className="flex flex-wrap items-center gap-3 text-sm text-neutral-600">
             {locationLabel && <p className="m-0">{locationLabel}</p>}
             {salaryLabel && <p className="m-0 font-medium text-neutral-900">{salaryLabel}</p>}
@@ -79,7 +78,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ maxHeight } = {}) => {
                 href={applyUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center rounded-full text-xs font-semibold uppercase tracking-wide text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1"
+                className="inline-flex items-center rounded-full bg-[#8b2332] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-sm transition hover:bg-[#721c28] focus:outline-none focus:ring-2 focus:ring-[#8b2332] focus:ring-offset-1"
                 style={{ backgroundColor: COLOURS.primary, padding: "6px 12px" }}
               >
                 Apply Now
@@ -90,15 +89,14 @@ const HeroSection: React.FC<HeroSectionProps> = ({ maxHeight } = {}) => {
 
         <div className="flex flex-wrap gap-2 text-xs font-medium text-neutral-700">
           {richTags.map((tag) => (
-            <span key={tag} className="rounded-full bg-neutral-200 px-3 py-1 uppercase tracking-wide">{tag}</span>
+            <span key={tag as string} className="rounded-full border border-black/10 bg-white/80 px-3 py-1 uppercase tracking-wide shadow-sm">
+              {tag}
+            </span>
           ))}
-          {!selectedRichJob && fallbackJobType && (
-            <span className="rounded-full bg-neutral-200 px-3 py-1 uppercase tracking-wide">{fallbackJobType}</span>
-          )}
         </div>
 
         {paragraphs.length > 0 ? (
-          <div className="max-w-3xl space-y-3 text-sm leading-8 text-neutral-700">
+          <div className="max-w-3xl space-y-4 text-[15px] leading-8 text-neutral-700">
             {paragraphs.map((paragraph, index) => (
               <p key={index}>{paragraph}</p>
             ))}
