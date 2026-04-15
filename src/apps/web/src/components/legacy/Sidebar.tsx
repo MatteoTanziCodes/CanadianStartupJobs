@@ -41,7 +41,7 @@ function Sidebar({ pageTitle }: { pageTitle: string }) {
   }, []);
 
   return (
-    <div className="col-span-1 flex h-full min-h-0 flex-col overflow-hidden">
+    <div className="col-span-1 flex flex-col overflow-visible lg:h-full lg:min-h-0 lg:overflow-hidden">
       <div className="mb-4 shrink-0">
         <Link href="https://buildcanada.com" className="block bg-[#8b2332] p-3 w-fit pr-8">
           <BuildCanada />
