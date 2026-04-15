@@ -82,6 +82,12 @@ app.get("/pipeline/status", async (c) => {
         acc[row.status] = (acc[row.status] ?? 0) + 1;
         return acc;
       }, {});
+      const queueByAgentFailed = queueRows
+        .filter((row) => row.status === "failed")
+        .reduce<Record<string, number>>((acc, row) => {
+          acc[row.agent] = (acc[row.agent] ?? 0) + 1;
+          return acc;
+        }, {});
 
       return c.json({
         ok: true,
@@ -95,6 +101,7 @@ app.get("/pipeline/status", async (c) => {
         queue: {
           byAgent: queueByAgent,
           byStatus: queueByStatus,
+          byAgentFailed: queueByAgentFailed,
         },
       });
     },

@@ -62,8 +62,14 @@ export default {
           },
         },
         async () => {
-          await seedDefaultOrganizations();
-          await seedDefaultSources();
+          try {
+            await seedDefaultOrganizations();
+            await seedDefaultSources();
+          } catch (seedError) {
+            // Seed failures are non-fatal — the pipeline can still process existing
+            // queue items. Log clearly so Cloudflare observability captures it.
+            console.error("Scheduled pipeline seed step failed (non-fatal).", seedError);
+          }
           return processQueueBatch({ maxItems: 80, maxDurationMs: 55_000, maxHeavyItems: 6 });
         },
       );

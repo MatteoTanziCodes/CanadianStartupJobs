@@ -116,6 +116,41 @@ const updateStatus = async (args: UpdateQueuedItemStatusArgs) => {
   return response[0];
 };
 
+// Maximum times an item can be deferred due to subrequest limits before
+// it is marked permanently failed. Prevents infinite deferral loops where
+// an agent always exhausts the Worker subrequest budget before completing.
+const MAX_DEFERRED_COUNT = 5;
+
+/**
+ * Increment the deferred_count for a queue item (subrequest-limit deferral).
+ * If deferred_count reaches MAX_DEFERRED_COUNT the item is marked failed
+ * instead of being returned to the queue, breaking infinite loops.
+ * Returns the updated row and a flag indicating whether the item was failed.
+ */
+const deferQueuedItem = async (id: number): Promise<{ id: number; status: string; deferredCount: number }> => {
+  // Atomically increment deferred_count and reset to queued.
+  const [updated] = await db
+    .update(queues)
+    .set({ deferredCount: sql`${queues.deferredCount} + 1`, status: "queued" })
+    .where(eq(queues.id, id))
+    .returning();
+
+  if (!updated) {
+    throw new AppError(ERROR_CODES.DB_INSERT_FAILED, "Couldn't defer queue item", { id });
+  }
+
+  if (updated.deferredCount >= MAX_DEFERRED_COUNT) {
+    const [failed] = await db
+      .update(queues)
+      .set({ status: "failed" })
+      .where(eq(queues.id, id))
+      .returning();
+    return { id, status: "failed", deferredCount: failed?.deferredCount ?? updated.deferredCount };
+  }
+
+  return { id, status: "queued", deferredCount: updated.deferredCount };
+};
+
 const resetFailedQueuedItems = async (args: {
   agents?: string[];
 } = {}) => {
@@ -148,4 +183,4 @@ export type QueuedItem = GetNextQueuedItem;
 
 export const queuedItemSchema = schemas.queues.select;
 
-export { getNextQueuedItem, addToQueue, updateStatus, resetFailedQueuedItems };
+export { getNextQueuedItem, addToQueue, updateStatus, deferQueuedItem, resetFailedQueuedItems };

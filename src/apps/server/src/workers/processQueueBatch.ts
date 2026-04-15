@@ -1,4 +1,4 @@
-import { getNextQueuedItem, updateStatus, addToQueue } from "@/lib/db/functions/queues";
+import { getNextQueuedItem, updateStatus, deferQueuedItem, addToQueue } from "@/lib/db/functions/queues";
 import { createCall, updateCall } from "@/lib/db/functions/calls";
 import { getAgent, AgentNames } from "@/lib/ai/agents/dictionary";
 import { AppError, ERROR_CODES } from "@/lib/errors";
@@ -136,7 +136,15 @@ export const processNextQueuedItem = async () => {
     });
 
     if (isSubrequestLimitError(err)) {
-      await updateStatus({ id: queuedItem.id, status: "queued" });
+      const deferred = await deferQueuedItem(queuedItem.id);
+      if (deferred.status === "failed") {
+        return {
+          status: "failed" as const,
+          queueId: queuedItem.id,
+          agent: queuedItem.agent,
+          reason: "max-deferrals-exceeded",
+        };
+      }
 
       return {
         status: "deferred" as const,
@@ -168,7 +176,16 @@ export const processNextQueuedItem = async () => {
         logs: result?.logs ?? [],
         errors,
       });
-      await updateStatus({ id: queuedItem.id, status: "queued" });
+      const deferred = await deferQueuedItem(queuedItem.id);
+      if (deferred.status === "failed") {
+        return {
+          status: "failed" as const,
+          queueId: queuedItem.id,
+          agent: queuedItem.agent,
+          reason: "max-deferrals-exceeded",
+          errors,
+        };
+      }
 
       return {
         status: "deferred" as const,
