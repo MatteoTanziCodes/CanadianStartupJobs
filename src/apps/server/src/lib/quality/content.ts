@@ -524,3 +524,28 @@ export const assertValidJobCandidate = (args: {
     throw new Error(`Rejected low-quality job extraction for ${args.url}: missing description`);
   }
 };
+
+export const compactJobDescription = (value: string | null | undefined, maxLength: number = 1800) => {
+  const normalized = (value ?? "")
+    .replace(/\r\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/[ \t]+/g, " ")
+    .trim();
+
+  if (!normalized) {
+    return "";
+  }
+
+  if (normalized.length <= maxLength) {
+    return normalized;
+  }
+
+  const truncated = normalized.slice(0, maxLength);
+  const lastBoundary = Math.max(
+    truncated.lastIndexOf("\n\n"),
+    truncated.lastIndexOf(". "),
+    truncated.lastIndexOf("; "),
+  );
+
+  return `${truncated.slice(0, lastBoundary > 200 ? lastBoundary : maxLength).trim()}...`;
+};

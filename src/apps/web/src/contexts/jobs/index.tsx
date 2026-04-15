@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { jobsApi } from "@/data/api/jobs";
+import { jobsApi, type JobWithRichData } from "@/data/api/jobs";
 import { DEFAULT_FILTERS, type FilterState } from "@/components/legacy/jobs/filterConfig";
 import { type Job, type JobsContextValue } from "@/contexts/jobs/types";
 import { mapApiJobsToFrontend } from "./helpers/mapping";
@@ -15,6 +15,8 @@ export function JobsProvider({ children }: { children: React.ReactNode }) {
   const [searchTerm, setSearchTermState] = useState("");
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+  const [selectedRichJob, setSelectedRichJob] = useState<JobWithRichData | null>(null);
+  const [isSelectedJobLoading, setIsSelectedJobLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [totalJobs, setTotalJobs] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -62,6 +64,46 @@ export function JobsProvider({ children }: { children: React.ReactNode }) {
     return filteredJobIds[0];
   }, [filteredJobIds, selectedJobId]);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchSelectedJob = async () => {
+      if (!activeJobId) {
+        setSelectedRichJob(null);
+        setIsSelectedJobLoading(false);
+        return;
+      }
+
+      const parsedId = Number.parseInt(activeJobId, 10);
+      if (!Number.isFinite(parsedId)) {
+        setSelectedRichJob(null);
+        setIsSelectedJobLoading(false);
+        return;
+      }
+
+      try {
+        setIsSelectedJobLoading(true);
+        const richJob = await jobsApi.getRichById(parsedId);
+        if (cancelled) return;
+        setSelectedRichJob(richJob);
+      } catch (error) {
+        console.error("Failed to fetch selected job details:", error);
+        if (cancelled) return;
+        setSelectedRichJob(null);
+      } finally {
+        if (!cancelled) {
+          setIsSelectedJobLoading(false);
+        }
+      }
+    };
+
+    fetchSelectedJob();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeJobId]);
+
   const setSearchTerm = useCallback((term: string) => {
     setSearchTermState(term);
   }, []);
@@ -92,6 +134,8 @@ export function JobsProvider({ children }: { children: React.ReactNode }) {
       filteredJobs,
       selectedJobId: activeJobId,
       selectedJob: activeJobId ? jobsById[activeJobId] ?? null : null,
+      selectedRichJob,
+      isSelectedJobLoading,
       searchTerm,
       setSearchTerm,
       filters,
@@ -105,7 +149,7 @@ export function JobsProvider({ children }: { children: React.ReactNode }) {
       nextPage,
       prevPage
     }),
-    [jobsById, jobIds, filteredJobIds, filteredJobs, activeJobId, searchTerm, setSearchTerm, filters, setFilters, selectJob, isLoading, totalJobs, currentPage, totalPages, goToPage, nextPage, prevPage]
+    [jobsById, jobIds, filteredJobIds, filteredJobs, activeJobId, selectedRichJob, isSelectedJobLoading, searchTerm, setSearchTerm, filters, setFilters, selectJob, isLoading, totalJobs, currentPage, totalPages, goToPage, nextPage, prevPage]
   );
 
   return <JobsContext.Provider value={value}>{children}</JobsContext.Provider>;

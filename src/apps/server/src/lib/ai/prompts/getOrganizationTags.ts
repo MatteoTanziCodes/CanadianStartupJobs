@@ -22,10 +22,13 @@ ${org}
 
 Use the provided tools to select and apply appropriate tags for the following joins:
 ---
-**orgsProvinces:** organizations <> provinces,
-**orgsIndustries:** organizations <> industries,
-**orgsSizes:** organizations <> teamSizes,
-**orgsStages:** organizations <> raisingStages,
+Use these exact tag names when calling tools:
+- "Province"
+- "Industry"
+- "Team Size"
+- "Raising Stage"
+
+Connect tags to the organization itself.
 
 <!-- /Goal -->
 `;

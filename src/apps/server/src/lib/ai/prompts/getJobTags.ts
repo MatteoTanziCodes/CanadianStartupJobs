@@ -18,11 +18,14 @@ ${org}
 
 Use the provided tools to select and apply appropriate tags for the following joins:
 ---
-**jobsExperienceLevels:** job <> experienceLevel,
-**jobsIndustries:** job <> industries,
-**jobsJobTypes:** job <> jobType,
-**jobsRoles:** jobs <> roles,
-**jobsProvinces:** jobs <> provinces,
+Use these exact tag names when calling tools:
+- "Experience Levels"
+- "Industries"
+- "Job Types"
+- "Roles"
+- "Provinces"
+
+Connect tags to the job itself, not to an organization.
 
 <!-- /Goal -->
 `;

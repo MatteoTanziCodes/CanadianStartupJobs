@@ -10,7 +10,7 @@ export const jobTaggingAgent = new Agent({
     searchSite,
     listTags: jobTools.tags.list,
     createTag: jobTools.tags.create,
-    connectOrgToTag: jobTools.tags.connect
+    connectJobToTag: jobTools.tags.connect
   },
   stopWhen: stepCountIs(10),
   prepareStep: observePrepareSteps("Job Tagging")

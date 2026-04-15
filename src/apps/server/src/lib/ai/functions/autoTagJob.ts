@@ -22,3 +22,5 @@ const getTagData = async (job: string, markdown: string, url: string) => {
 export const autoTagJobs = async (flatJob: string, markdown: string, url: string) => {
   await getTagData(flatJob, markdown, url);
 };
+
+export const autoTagJob = autoTagJobs;

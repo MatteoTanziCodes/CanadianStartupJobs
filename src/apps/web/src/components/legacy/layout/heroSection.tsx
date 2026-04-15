@@ -8,9 +8,10 @@ type HeroSectionProps = {
 };
 
 const HeroSection: React.FC<HeroSectionProps> = ({ maxHeight } = {}) => {
-  const { selectedJob, filteredJobs } = useJobsContext();
+  const { selectedJob, selectedRichJob, isSelectedJobLoading } = useJobsContext();
   const computedMaxHeight =
     typeof maxHeight === "number" ? Math.max(160, maxHeight) : undefined;
+  const activeJob = selectedRichJob ?? selectedJob;
 
   const baseStyle: CSSProperties = {
     backgroundColor: COLOURS.background,
@@ -21,7 +22,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ maxHeight } = {}) => {
     baseStyle.maxHeight = computedMaxHeight;
   }
 
-  if (!selectedJob) {
+  if (!activeJob) {
     return (
       <section
         className="flex h-full items-center justify-center rounded-2xl border p-10 text-center shadow-sm"
@@ -39,9 +40,26 @@ const HeroSection: React.FC<HeroSectionProps> = ({ maxHeight } = {}) => {
     : {};
 
   const paragraphs =
-    typeof selectedJob.description === "string"
-      ? selectedJob.description.split(/\n+/).map((segment) => segment.trim()).filter(Boolean)
+    typeof activeJob.description === "string"
+      ? activeJob.description.split(/\n+/).map((segment) => segment.trim()).filter(Boolean)
       : [];
+  const locationLabel = selectedRichJob
+    ? `${selectedRichJob.city}, ${selectedRichJob.province}`
+    : activeJob.location;
+  const applyUrl = selectedRichJob?.postingUrl ?? activeJob.applyUrl;
+  const fallbackJobType = "jobType" in activeJob ? activeJob.jobType : undefined;
+  const salaryLabel =
+    activeJob.salaryMin || activeJob.salaryMax
+      ? `$${activeJob.salaryMin?.toLocaleString() ?? "—"} - $${activeJob.salaryMax?.toLocaleString() ?? "—"}`
+      : null;
+  const richTags = selectedRichJob
+    ? [
+        ...selectedRichJob.tags.jobTypes.map((tag) => tag.name),
+        ...selectedRichJob.tags.experienceLevels.map((tag) => tag.name),
+        ...selectedRichJob.tags.industries.map((tag) => tag.name),
+        ...selectedRichJob.tags.roles.map((tag) => tag.name),
+      ]
+    : [];
 
   return (
     <section
@@ -50,13 +68,15 @@ const HeroSection: React.FC<HeroSectionProps> = ({ maxHeight } = {}) => {
     >
       <div className="w-full max-w-4xl space-y-6">
         <div className="space-y-3">
-          <p className="text-sm font-semibold uppercase tracking-wide text-neutral-600">{selectedJob.company}</p>
-          <h2 className="text-3xl font-semibold text-neutral-900">{selectedJob.title}</h2>
+          <p className="text-sm font-semibold uppercase tracking-wide text-neutral-600">{activeJob.company}</p>
+          <h2 className="text-3xl font-semibold text-neutral-900">{activeJob.title}</h2>
           <div className="flex flex-wrap items-center gap-3 text-sm text-neutral-600">
-            {selectedJob.location && <p className="m-0">{selectedJob.location}</p>}
-            {selectedJob.applyUrl && (
+            {locationLabel && <p className="m-0">{locationLabel}</p>}
+            {salaryLabel && <p className="m-0 font-medium text-neutral-900">{salaryLabel}</p>}
+            {activeJob.remoteOk && <p className="m-0">Remote friendly</p>}
+            {applyUrl && (
               <a
-                href={selectedJob.applyUrl}
+                href={applyUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center rounded-full text-xs font-semibold uppercase tracking-wide text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1"
@@ -69,17 +89,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({ maxHeight } = {}) => {
         </div>
 
         <div className="flex flex-wrap gap-2 text-xs font-medium text-neutral-700">
-          {selectedJob.jobType && (
-            <span className="rounded-full bg-neutral-200 px-3 py-1 uppercase tracking-wide">{selectedJob.jobType}</span>
-          )}
-          {selectedJob.experience && (
-            <span className="rounded-full bg-neutral-200 px-3 py-1 uppercase tracking-wide">{selectedJob.experience}</span>
-          )}
-          {selectedJob.industry && (
-            <span className="rounded-full bg-neutral-200 px-3 py-1 uppercase tracking-wide">{selectedJob.industry}</span>
-          )}
-          {selectedJob.role && (
-            <span className="rounded-full bg-neutral-200 px-3 py-1 uppercase tracking-wide">{selectedJob.role}</span>
+          {richTags.map((tag) => (
+            <span key={tag} className="rounded-full bg-neutral-200 px-3 py-1 uppercase tracking-wide">{tag}</span>
+          ))}
+          {!selectedRichJob && fallbackJobType && (
+            <span className="rounded-full bg-neutral-200 px-3 py-1 uppercase tracking-wide">{fallbackJobType}</span>
           )}
         </div>
 
@@ -91,6 +105,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ maxHeight } = {}) => {
           </div>
         ) : (
           <p className="text-sm text-neutral-600">Detailed description coming soon.</p>
+        )}
+        {isSelectedJobLoading && (
+          <p className="text-xs uppercase tracking-wide text-neutral-500">Refreshing job details...</p>
         )}
       </div>
     </section>
