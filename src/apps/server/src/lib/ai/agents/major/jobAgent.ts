@@ -10,6 +10,7 @@ import { sha256Hex } from "@/lib/hash";
 import {
   assessCanadianJobCandidate,
   assertValidJobCandidate,
+  compactJobDescription,
   companyNamesMatch,
   extractEmployerNameFromJobPage,
   extractLocationFromText,
@@ -91,6 +92,18 @@ type HiringOrganizationResolution = {
   };
 };
 
+type ExtractedJobData = {
+  title?: string;
+  city?: string;
+  province?: string;
+  description?: string;
+  remoteOk?: boolean;
+  salaryMin?: number | null;
+  salaryMax?: number | null;
+  companyName?: string;
+  companyWebsite?: string;
+};
+
 const buildQualificationQueueItem = (args: {
   organizationId: number;
   name: string;
@@ -102,6 +115,16 @@ const buildQualificationQueueItem = (args: {
     url: args.url,
   },
   agent: "qualificationAgent",
+  maxRetries: 3,
+});
+
+const buildOrganizationEnrichmentQueueItem = (args: {
+  url: string;
+}) => ({
+  payload: {
+    url: args.url,
+  },
+  agent: "organizationAgent",
   maxRetries: 3,
 });
 
@@ -140,6 +163,10 @@ const resolveHiringOrganization = async (args: {
     args.atsCompanyWebsite
     ?? sharedBoardCompany?.companyProfileUrl
     ?? args.payload.url;
+  const hasDistinctOrganizationUrl = Boolean(
+    candidateOrganizationUrl &&
+    candidateOrganizationUrl !== args.payload.url,
+  );
 
   if (args.atsCompanyWebsite) {
     const existingByWebsite = await findExistingOrganization({
@@ -167,11 +194,15 @@ const resolveHiringOrganization = async (args: {
       childQueueItem:
         existingByName.qualificationStatus === "qualified" || !candidateOrganizationUrl
           ? undefined
-          : buildQualificationQueueItem({
-              organizationId: existingByName.id,
-              name: existingByName.name,
-              url: candidateOrganizationUrl,
-            }),
+          : hasDistinctOrganizationUrl
+            ? buildOrganizationEnrichmentQueueItem({
+                url: candidateOrganizationUrl,
+              })
+            : buildQualificationQueueItem({
+                organizationId: existingByName.id,
+                name: existingByName.name,
+                url: candidateOrganizationUrl,
+              }),
     };
   }
 
@@ -191,11 +222,15 @@ const resolveHiringOrganization = async (args: {
     companyName: createdOrganization.name,
     organizationUrl: createdOrganization.website ?? candidateOrganizationUrl,
     resolution: "created_company_org",
-    childQueueItem: buildQualificationQueueItem({
-      organizationId: createdOrganization.id,
-      name: createdOrganization.name,
-      url: candidateOrganizationUrl,
-    }),
+    childQueueItem: hasDistinctOrganizationUrl
+      ? buildOrganizationEnrichmentQueueItem({
+          url: candidateOrganizationUrl,
+        })
+      : buildQualificationQueueItem({
+          organizationId: createdOrganization.id,
+          name: createdOrganization.name,
+          url: candidateOrganizationUrl,
+        }),
   };
 };
 
@@ -405,19 +440,7 @@ const jobAgent = async (
 
     const atsProvider = payload.atsProvider ?? detectAtsProvider(payload.url);
     let extractionMethod = "llm";
-    let finalJobData:
-      | {
-          title?: string;
-          city?: string;
-          province?: string;
-        description?: string;
-        remoteOk?: boolean;
-        salaryMin?: number;
-        salaryMax?: number;
-        companyName?: string;
-        companyWebsite?: string;
-      }
-      | null = null;
+    let finalJobData: ExtractedJobData | null = null;
 
     if (atsProvider !== "unknown") {
       try {
@@ -512,6 +535,10 @@ const jobAgent = async (
       };
     }
 
+    if (!finalJobData) {
+      throw new Error(`Failed to extract job data for ${payload.url}`);
+    }
+
     const publicationAssessment = assessCanadianJobCandidate({
       title: finalJobData.title,
       city: finalJobData.city,
@@ -528,7 +555,10 @@ const jobAgent = async (
       city: publicationAssessment.city ?? finalJobData.city,
       province: publicationAssessment.province ?? finalJobData.province,
       remoteOk: publicationAssessment.remoteOk,
+      description: compactJobDescription(finalJobData.description),
     };
+
+    const finalizedJobData = finalJobData;
 
     if (!publicationAssessment.publishable) {
       logs.push(`Skipped job publication: ${publicationAssessment.reviewReason}`);
@@ -538,7 +568,7 @@ const jobAgent = async (
         reason: publicationAssessment.reviewReason,
         extractionMethod,
         atsProvider,
-        title: finalJobData.title,
+        title: finalizedJobData.title,
       };
 
       if (helpers.parentCallId) {
@@ -564,17 +594,17 @@ const jobAgent = async (
       };
     }
 
-    logs.push(`Extracted job: ${finalJobData.title}`);
+    logs.push(`Extracted job: ${finalizedJobData.title}`);
 
     const hiringOrganization = await resolveHiringOrganization({
       payload,
-      title: finalJobData.title,
-      city: finalJobData.city!,
-      province: finalJobData.province!,
-      description: finalJobData.description!,
+      title: finalizedJobData.title,
+      city: finalizedJobData.city!,
+      province: finalizedJobData.province!,
+      description: finalizedJobData.description!,
       markdown: jobDoc.markdown,
-      atsCompanyName: finalJobData.companyName,
-      atsCompanyWebsite: finalJobData.companyWebsite,
+      atsCompanyName: finalizedJobData.companyName,
+      atsCompanyWebsite: finalizedJobData.companyWebsite,
     });
     logs.push(
       `Resolved hiring organization: ${hiringOrganization.companyName} (${hiringOrganization.resolution})`,
@@ -590,13 +620,13 @@ const jobAgent = async (
       organizationId: hiringOrganization.organizationId,
       url: payload.url,
       companyName: hiringOrganization.companyName,
-      title: finalJobData.title!,
-      city: finalJobData.city!,
-      province: finalJobData.province!,
-      description: finalJobData.description!,
-      remoteOk: Boolean(finalJobData.remoteOk),
-      salaryMin: finalJobData.salaryMin ?? null,
-      salaryMax: finalJobData.salaryMax ?? null,
+      title: finalizedJobData.title!,
+      city: finalizedJobData.city!,
+      province: finalizedJobData.province!,
+      description: finalizedJobData.description!,
+      remoteOk: Boolean(finalizedJobData.remoteOk),
+      salaryMin: finalizedJobData.salaryMin ?? null,
+      salaryMax: finalizedJobData.salaryMax ?? null,
       postingUrl: payload.url,
       atsProvider: atsProvider === "unknown" ? null : atsProvider,
       extractionMethod,
@@ -609,7 +639,11 @@ const jobAgent = async (
     logs.push(`Verified job ${newJob.id} is linked to organization ${hiringOrganization.organizationId}`);
 
     logs.push("Creating job cache...");
-    const jobCache = await createJobCache(payload.url, jobDoc.markdown, jobDoc.contentHash);
+    const jobCache = await createJobCache(
+      payload.url,
+      jobDoc.markdown,
+      "contentHash" in jobDoc ? jobDoc.contentHash : null,
+    );
     logs.push(`Created job cache: ${jobCache.id}`);
 
     logs.push("Connecting job to cache...");

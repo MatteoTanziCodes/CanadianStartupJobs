@@ -1,5 +1,6 @@
 import type { JobWithRichData } from "@/data/api/jobs";
 import Header from "./Header";
+import SalaryRange from "./SalaryRange";
 import Description from "./Description";
 import Organization from "./Organization";
 import Tags from "./Tags";
@@ -44,6 +45,8 @@ export default function JobDetail({ job }: JobDetailProps) {
         salaryMin={salaryMin}
         salaryMax={salaryMax}
       />
+
+      <SalaryRange salaryMin={salaryMin} salaryMax={salaryMax} />
 
       <Description description={description} />
 

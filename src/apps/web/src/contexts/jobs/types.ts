@@ -5,13 +5,15 @@ export type Job = {
   id: string;
   title: string;
   company: string;
-  salaryMin?: string;
-  salaryMax?: string;
+  salaryMin?: number;
+  salaryMax?: number;
   description?: string;
   applyUrl?: string;
   location?: string;
   city?: string;
   province?: string;
+  remoteOk?: boolean;
+  isAtAStartup?: boolean;
   jobType?: string;
   experience?: string;
   industry?: string;
@@ -29,6 +31,8 @@ export type JobsContextValue = {
   filteredJobs: Job[];
   selectedJobId: string | null;
   selectedJob: Job | null;
+  selectedRichJob: RichJob | null;
+  isSelectedJobLoading: boolean;
   searchTerm: string;
   setSearchTerm: (term: string) => void;
   filters: FilterState;

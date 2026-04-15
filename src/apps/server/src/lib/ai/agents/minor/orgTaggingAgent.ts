@@ -10,7 +10,7 @@ export const orgTaggingAgent = new Agent({
     searchSite,
     listTags: orgTools.tags.list,
     createTag: orgTools.tags.create,
-    connectOrgToTag: orgTools.tags.connect
+    connectOrganizationToTag: orgTools.tags.connect
   },
   stopWhen: stepCountIs(10),
   prepareStep: observePrepareSteps("Organization Tagging")
