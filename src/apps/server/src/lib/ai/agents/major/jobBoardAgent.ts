@@ -215,12 +215,22 @@ const jobBoardAgent = async (
     const careersDoc = await getCareersPage(payload.careersUrl, payload.preFetchedData);
     logs.push(`Fetched careers page: ${careersDoc.markdown.length} chars, ${careersDoc.links.length} links (source: ${careersDoc.source}, age: ${careersDoc.age}ms)`);
 
-    logs.push("Finding job posting links...");
-    const jobLinks = await findJobLinks(careersDoc.markdown, careersDoc.links, payload.careersUrl, usage);
-    logs.push(`Found ${jobLinks.length} job posting links`);
-
     const atsLinks = extractAtsJobLinks(payload.careersUrl, careersDoc.links);
     logs.push(`Deterministic ATS links found: ${atsLinks.length}`);
+
+    let jobLinks: Array<z.infer<typeof jobLinkEvaluationSchema>> = [];
+    logs.push("Finding job posting links...");
+    try {
+      jobLinks = await findJobLinks(careersDoc.markdown, careersDoc.links, payload.careersUrl, usage);
+      logs.push(`Found ${jobLinks.length} job posting links`);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logs.push(`AI job-link discovery failed: ${message}`);
+      if (atsLinks.length === 0) {
+        throw err;
+      }
+      logs.push("Proceeding with deterministic ATS links only");
+    }
 
     let mergedJobLinks = mergeJobEvaluations({
       current: jobLinks.map((jobLink) => ({ ...jobLink })),
@@ -245,8 +255,18 @@ const jobBoardAgent = async (
             continue;
           }
 
-          const candidateJobLinks = await findJobLinks(candidateDoc.markdown, candidateDoc.links, candidateUrl, usage);
           const candidateAtsLinks = extractAtsJobLinks(candidateUrl, candidateDoc.links);
+          let candidateJobLinks: Array<z.infer<typeof jobLinkEvaluationSchema>> = [];
+          try {
+            candidateJobLinks = await findJobLinks(candidateDoc.markdown, candidateDoc.links, candidateUrl, usage);
+          } catch (candidateAiErr) {
+            const message = candidateAiErr instanceof Error ? candidateAiErr.message : String(candidateAiErr);
+            logs.push(`AI job-link discovery failed for ${candidateUrl}: ${message}`);
+            if (candidateAtsLinks.length === 0) {
+              throw candidateAiErr;
+            }
+            logs.push(`Proceeding with deterministic ATS links only for ${candidateUrl}`);
+          }
           mergedJobLinks = mergeJobEvaluations({
             current: mergedJobLinks,
             additions: [
