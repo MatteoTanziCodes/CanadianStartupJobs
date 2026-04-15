@@ -22,6 +22,7 @@ const getPlatformPackages = () => {
     if (process.arch === "x64") {
       return [
         `lightningcss-linux-x64-${libc}`,
+        `@tailwindcss/oxide-linux-x64-${libc}`,
         `@ast-grep/napi-linux-x64-${libc}`,
       ];
     }
@@ -29,32 +30,52 @@ const getPlatformPackages = () => {
     if (process.arch === "arm64") {
       return [
         `lightningcss-linux-arm64-${libc}`,
+        `@tailwindcss/oxide-linux-arm64-${libc}`,
         `@ast-grep/napi-linux-arm64-${libc}`,
       ];
     }
 
     if (process.arch === "arm" && libc === "gnu") {
-      return ["lightningcss-linux-arm-gnueabihf"];
+      return [
+        "lightningcss-linux-arm-gnueabihf",
+        "@tailwindcss/oxide-linux-arm-gnueabihf",
+      ];
     }
   }
 
   if (process.platform === "darwin") {
     if (process.arch === "x64") {
-      return ["lightningcss-darwin-x64", "@ast-grep/napi-darwin-x64"];
+      return [
+        "lightningcss-darwin-x64",
+        "@tailwindcss/oxide-darwin-x64",
+        "@ast-grep/napi-darwin-x64",
+      ];
     }
 
     if (process.arch === "arm64") {
-      return ["lightningcss-darwin-arm64", "@ast-grep/napi-darwin-arm64"];
+      return [
+        "lightningcss-darwin-arm64",
+        "@tailwindcss/oxide-darwin-arm64",
+        "@ast-grep/napi-darwin-arm64",
+      ];
     }
   }
 
   if (process.platform === "win32") {
     if (process.arch === "x64") {
-      return ["lightningcss-win32-x64-msvc", "@ast-grep/napi-win32-x64-msvc"];
+      return [
+        "lightningcss-win32-x64-msvc",
+        "@tailwindcss/oxide-win32-x64-msvc",
+        "@ast-grep/napi-win32-x64-msvc",
+      ];
     }
 
     if (process.arch === "arm64") {
-      return ["lightningcss-win32-arm64-msvc", "@ast-grep/napi-win32-arm64-msvc"];
+      return [
+        "lightningcss-win32-arm64-msvc",
+        "@tailwindcss/oxide-win32-arm64-msvc",
+        "@ast-grep/napi-win32-arm64-msvc",
+      ];
     }
   }
 
