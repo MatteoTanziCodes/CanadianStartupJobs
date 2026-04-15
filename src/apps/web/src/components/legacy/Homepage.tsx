@@ -28,7 +28,7 @@ const Homepage: React.FC = () => {
             </div>
           </section>
         ) : isSelectedJobLoading ? (
-          <section className="flex min-h-[320px] items-center justify-center rounded-[2rem] border border-black/10 bg-white shadow-[0_22px_70px_rgba(0,0,0,0.06)]">
+          <section className="flex min-h-[320px] items-center justify-center rounded-[2rem] border border-black/10 shadow-[0_22px_70px_rgba(0,0,0,0.06)]" style={{ backgroundColor: COLOURS.background }}>
             <Spinner />
           </section>
         ) : (

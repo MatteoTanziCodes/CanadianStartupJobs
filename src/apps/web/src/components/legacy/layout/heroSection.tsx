@@ -62,8 +62,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({ maxHeight } = {}) => {
 
   return (
     <section
-      className="flex h-full flex-col gap-6 overflow-y-auto rounded-[2rem] border border-black/10 bg-gradient-to-br from-white via-[#fffaf6] to-[#f5ece3] p-8 shadow-[0_22px_70px_rgba(0,0,0,0.08)]"
-      style={sectionStyle}
+      className="flex h-full flex-col gap-6 overflow-y-auto rounded-[2rem] border border-black/10 p-8 shadow-[0_22px_70px_rgba(0,0,0,0.08)]"
+      style={{ backgroundColor: COLOURS.background, ...sectionStyle }}
     >
       <div className="w-full max-w-4xl space-y-6">
         <div className="space-y-3">
