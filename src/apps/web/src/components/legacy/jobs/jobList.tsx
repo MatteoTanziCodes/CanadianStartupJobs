@@ -16,15 +16,10 @@ import { useResponsive } from "@/hooks/useResponsive";
  */
 export default function JobList(props: JobListProps = {}) {
   const { filteredJobs, selectJob, selectedJobId, currentPage, totalPages, prevPage, nextPage } = useJobsContext();
-  const { isMobile, isDesktop } = useResponsive();
+  const { isMobile } = useResponsive();
   const router = useRouter();
   const jobCount = filteredJobs.length;
-  const displayedJobs = useMemo(() => {
-    if (!isDesktop) {
-      return filteredJobs.slice(0, 3);
-    }
-    return filteredJobs;
-  }, [filteredJobs, isDesktop]);
+  const displayedJobs = filteredJobs;
 
   const handleJobClick = (jobId: string) => {
     if (isMobile) {
@@ -34,19 +29,16 @@ export default function JobList(props: JobListProps = {}) {
     selectJob(jobId);
   };
 
-  const listStyle: CSSProperties = props.maxHeight
-    ? {
-        height: `${props.maxHeight}px`,
-        maxHeight: `${props.maxHeight}px`,
-        minHeight: 0,
-        WebkitOverflowScrolling: "touch",
-        scrollbarGutter: "stable",
-      }
-    : {
-        minHeight: 0,
-        WebkitOverflowScrolling: "touch",
-        scrollbarGutter: "stable",
-      };
+  const listStyle: CSSProperties =
+    !isMobile && props.maxHeight
+      ? {
+          height: `${props.maxHeight}px`,
+          maxHeight: `${props.maxHeight}px`,
+          minHeight: 0,
+          WebkitOverflowScrolling: "touch",
+          scrollbarGutter: "stable",
+        }
+      : { minHeight: 0 };
 
   return (
     <section
@@ -56,7 +48,7 @@ export default function JobList(props: JobListProps = {}) {
     >
       <h2 className="text-lg font-semibold text-neutral-800">Latest Jobs</h2>
       <div
-        className="flex-1 min-h-0 space-y-2 overflow-y-auto pr-2 overscroll-contain touch-pan-y"
+        className={`flex-1 min-h-0 space-y-2 pr-2${!isMobile ? " overflow-y-auto overscroll-contain touch-pan-y" : ""}`}
         style={listStyle}
         role="list"
         aria-busy="true"
@@ -103,7 +95,7 @@ export default function JobList(props: JobListProps = {}) {
           ))
         )}
       </div>
-      {isDesktop && totalPages > 1 && (
+      {!isMobile && totalPages > 1 && (
         <div className="flex items-center justify-between gap-3 border-t border-black/10 pt-3">
           <button
             type="button"
