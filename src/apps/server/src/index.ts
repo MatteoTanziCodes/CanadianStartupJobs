@@ -12,6 +12,9 @@ import { seedDefaultOrganizations, seedDefaultSources } from "./lib/pipeline/see
 import { processQueueBatch } from "./workers/processQueueBatch";
 
 const app = new Hono<AppEnv>();
+const getAnthropicApiKey = (env: AppEnv["Bindings"]) =>
+  env.ANTHROPIC_API_KEY
+  ?? (env as Record<string, string | undefined>)["ANTHROPIC_API_KEY "];
 
 app.use("*", async (c, next) => {
   c.set("db", createDb(c.env.DB));
@@ -53,7 +56,7 @@ export default {
         {
           db: runtimeDb,
           env: {
-            ANTHROPIC_API_KEY: env.ANTHROPIC_API_KEY,
+            ANTHROPIC_API_KEY: getAnthropicApiKey(env),
             ANTHROPIC_FAST_MODEL: env.ANTHROPIC_FAST_MODEL,
             ANTHROPIC_MAIN_MODEL: env.ANTHROPIC_MAIN_MODEL,
           },

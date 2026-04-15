@@ -41,8 +41,12 @@ const assertAuthorized = (c: Context<AppEnv>) => {
   return null;
 };
 
+const getAnthropicApiKey = (c: Context<AppEnv>) =>
+  c.env.ANTHROPIC_API_KEY
+  ?? (c.env as Record<string, string | undefined>)["ANTHROPIC_API_KEY "];
+
 const getRuntimeEnv = (c: Context<AppEnv>) => ({
-  ANTHROPIC_API_KEY: c.env.ANTHROPIC_API_KEY,
+  ANTHROPIC_API_KEY: getAnthropicApiKey(c),
   ANTHROPIC_FAST_MODEL: c.env.ANTHROPIC_FAST_MODEL,
   ANTHROPIC_MAIN_MODEL: c.env.ANTHROPIC_MAIN_MODEL,
 });
