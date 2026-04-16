@@ -13,7 +13,7 @@ const SOURCE_SEED_BATCH_SIZE = 6;
 const QUALIFIED_JOBBOARD_BACKFILL_BATCH_SIZE = 20;
 const MAX_QUEUE_BACKLOG_BEFORE_SEEDING = 150;
 
-const createSeededOrganization = async (seed: { name: string; website: string }) => {
+const createSeededOrganization = async (seed: { name: string; website: string; careersPage?: string }) => {
   const normalizedWebsite = normalizeHttpUrl(seed.website) || seed.website;
   const canonicalDomain = getCanonicalDomain(seed.website);
   const now = new Date();
@@ -26,6 +26,7 @@ const createSeededOrganization = async (seed: { name: string; website: string })
       province: "Unknown",
       description: "Seeded organization awaiting qualification and careers discovery.",
       website: normalizedWebsite,
+      careersPage: seed.careersPage ?? undefined,
       canonicalDomain: canonicalDomain || undefined,
       lastSeenAt: now,
     })

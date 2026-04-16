@@ -5,6 +5,7 @@ import { COLOURS } from "@/utils/constants";
 import { Toaster } from "@/components/ui/toaster";
 import { Providers } from "@/components/Providers";
 import Sidebar from "@/components/legacy/Sidebar";
+import JobList from "@/components/legacy/jobs/jobList";
 import { Footer } from "@/components/legacy/layout/footer";
 
 const canadianFlagEmoji = "\u{1F1E8}\u{1F1E6}";
@@ -73,12 +74,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             >
               <Providers>
                 <div className="grid h-full gap-6 overflow-visible lg:grid-cols-[340px_minmax(0,1fr)]">
-                  <Sidebar pageTitle="Canadian Startup Jobs" className="order-2 lg:order-1" />
+                  {/* On desktop: full sidebar (filters + job list) in left column */}
+                  <Sidebar pageTitle="Canadian Startup Jobs" />
+                  {/* On desktop: job detail in right column. On mobile: between sidebar-top and job list */}
                   <div
-                    className="order-1 min-h-0 overflow-visible lg:order-2"
+                    className="min-h-0 overflow-visible"
                     style={{ backgroundColor: COLOURS.background }}
                   >
                     {children}
+                  </div>
+                  {/* Mobile-only job list rendered after job detail so order is: filters → posting → list */}
+                  <div className="lg:hidden">
+                    <JobList />
                   </div>
                 </div>
               </Providers>

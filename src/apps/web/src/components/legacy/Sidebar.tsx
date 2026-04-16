@@ -66,7 +66,7 @@ function Sidebar({ pageTitle, className }: { pageTitle: string; className?: stri
       <div className="mb-5 shrink-0">
         <Header variant="sidebar" className="rounded-2xl border border-black/10 shadow-sm" />
       </div>
-      <div ref={listViewportRef} className="flex min-h-0 flex-1 flex-col">
+      <div ref={listViewportRef} className="hidden lg:flex min-h-0 flex-1 flex-col">
         <JobList maxHeight={listMaxHeight} />
       </div>
     </div>
