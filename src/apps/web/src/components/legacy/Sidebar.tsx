@@ -4,7 +4,7 @@ import Link from "next/link";
 import FAQModal from "./FAQModal";
 import JobList from "@/components/legacy/jobs/jobList";
 import Header from "@/components/legacy/layout/header";
-import BuildCanada from "../common/svg/BuildCanada";
+import JobFilters from "@/components/legacy/layout/jobFilters";
 
 function Sidebar({ pageTitle, className }: { pageTitle: string; className?: string }) {
   const [isFAQModalOpen, setIsFAQModalOpen] = useState(false);
@@ -17,7 +17,7 @@ function Sidebar({ pageTitle, className }: { pageTitle: string; className?: stri
       if (!node) return;
       const { top } = node.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
-      const gutter = 40; // leave room for the border and footer gap
+      const gutter = 40;
       setListMaxHeight(Math.max(160, viewportHeight - top - gutter));
     };
 
@@ -42,11 +42,6 @@ function Sidebar({ pageTitle, className }: { pageTitle: string; className?: stri
 
   return (
     <div className={`col-span-1 flex flex-col overflow-visible lg:h-full lg:min-h-0 lg:overflow-hidden${className ? ` ${className}` : ""}`}>
-      <div className="mb-4 shrink-0">
-        <Link href="https://buildcanada.com" className="block bg-[#8b2332] p-3 w-fit pr-8">
-          <BuildCanada />
-        </Link>
-      </div>
       <Link href="/" className="text-4xl lg:text-5xl font-bold mb-6 text-[#8b2332]">{pageTitle}</Link>
       <div className="mb-6 shrink-0">
         <p className="text-gray-900 mb-4">
@@ -64,7 +59,10 @@ function Sidebar({ pageTitle, className }: { pageTitle: string; className?: stri
         onClose={() => setIsFAQModalOpen(false)}
       />
       <div className="mb-5 shrink-0">
-        <Header variant="sidebar" className="rounded-2xl border border-black/10 shadow-sm" />
+        <Header variant="sidebar" showFilters={false} className="rounded-2xl border border-black/10 shadow-sm" />
+      </div>
+      <div className="mb-5 shrink-0 lg:hidden">
+        <JobFilters variant="sidebar" />
       </div>
       <div ref={listViewportRef} className="hidden lg:flex min-h-0 flex-1 flex-col">
         <JobList maxHeight={listMaxHeight} />

@@ -76,7 +76,7 @@ export default function JobFilters({ onChange, variant = "default" }: JobFilters
         <span className="text-xs text-neutral-500">{activeCount} active</span>
       </div>
 
-      <div className={isSidebar ? "grid gap-2.5" : "grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"}>
+      <div className={isSidebar ? "grid gap-2.5" : "grid gap-3 sm:grid-cols-2 lg:grid-cols-5"}>
         {FILTER_DROPDOWN_CONFIG.map((config) => (
           <DropdownField
             key={config.key}

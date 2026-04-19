@@ -8,9 +8,11 @@ import { COLOURS } from "@/utils/constants";
 export default function Header({
   className = "",
   variant = "default",
+  showFilters = true,
 }: {
   className?: string;
   variant?: "default" | "sidebar";
+  showFilters?: boolean;
 }) {
   const { searchTerm, setSearchTerm } = useJobsContext();
   const isSidebar = variant === "sidebar";
@@ -26,7 +28,7 @@ export default function Header({
         }`}
       >
         <SearchBar value={searchTerm} onChange={setSearchTerm} variant={variant} />
-        <JobFilters variant={variant} />
+        {showFilters && <JobFilters variant={variant} />}
       </div>
     </header>
   );
