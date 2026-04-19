@@ -7,6 +7,7 @@ import { Providers } from "@/components/Providers";
 import Sidebar from "@/components/legacy/Sidebar";
 import JobList from "@/components/legacy/jobs/jobList";
 import { Footer } from "@/components/legacy/layout/footer";
+import JobFilters from "@/components/legacy/layout/jobFilters";
 
 const canadianFlagEmoji = "\u{1F1E8}\u{1F1E6}";
 const emojiFaviconSvg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
@@ -69,18 +70,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             style={{ backgroundColor: COLOURS.background }}
           >
             <main
-              className="flex-1 overflow-hidden px-4 py-4 sm:px-5 lg:px-8"
+              className="flex-1 overflow-visible px-4 py-4 sm:px-5 lg:px-8"
               style={{ backgroundColor: COLOURS.background }}
             >
               <Providers>
                 <div className="grid h-full gap-6 overflow-visible lg:grid-cols-[340px_minmax(0,1fr)]">
-                  {/* On desktop: full sidebar (filters + job list) in left column */}
+                  {/* On desktop: search + job list in left column */}
                   <Sidebar pageTitle="Canadian Startup Jobs" />
-                  {/* On desktop: job detail in right column. On mobile: between sidebar-top and job list */}
+                  {/* On desktop: filters bar + job detail in right column. On mobile: job detail only */}
                   <div
-                    className="min-h-0 overflow-visible"
+                    className="flex min-h-0 flex-col gap-4 overflow-visible"
                     style={{ backgroundColor: COLOURS.background }}
                   >
+                    <div
+                      className="hidden shrink-0 rounded-2xl border border-black/10 px-4 py-4 shadow-sm lg:block"
+                      style={{ backgroundColor: COLOURS.background }}
+                    >
+                      <JobFilters />
+                    </div>
                     {children}
                   </div>
                   {/* Mobile-only job list rendered after job detail so order is: filters → posting → list */}
